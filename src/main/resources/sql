@@ -1,0 +1,129 @@
+create database family_education;
+use family_education;
+
+-- 1. 用户表 (user)
+CREATE TABLE `user` (
+                        `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+                        `username` VARCHAR(50) NOT NULL UNIQUE,
+                        `password` VARCHAR(255) NOT NULL,
+                        `phone_number` VARCHAR(20) NOT NULL UNIQUE,
+                        `role` ENUM('admin', 'teacher', 'parent') NOT NULL,
+                        `status` ENUM('active', 'inactive', 'banned') DEFAULT 'active',
+                        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        `email` VARCHAR(100),
+                        `picture` VARCHAR(255)
+);
+
+-- 2. 管理员表 (admin)
+CREATE TABLE `admin` (
+                         `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+                         `user_id` BIGINT NOT NULL,
+                         `last_login_time` TIMESTAMP,
+                         `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                         FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE
+);
+
+-- 3. 教师表 (teacher)
+CREATE TABLE `teacher` (
+                           `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+                           `user_id` BIGINT NOT NULL,
+                           `real_name` VARCHAR(50) NOT NULL,
+                           `qualification` VARCHAR(255),
+                           `intro` TEXT,
+                           `official_teacher` BOOLEAN DEFAULT false,
+                           `subjects` TEXT,
+                           FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE
+);
+
+-- 4. 家长表 (parent)
+CREATE TABLE `parent` (
+                          `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          `user_id` BIGINT NOT NULL,
+                          `real_name` VARCHAR(50) NOT NULL,
+                          `phone_number` VARCHAR(20) NOT NULL UNIQUE,
+                          FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE
+);
+
+-- 5. 家教订单表 (order)
+CREATE TABLE `order` (
+                         `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+                         `teacher_id` BIGINT NOT NULL,
+                         `parent_id` BIGINT NOT NULL,
+                         `status` ENUM('received', 'notAccepted') DEFAULT 'notAccepted',
+                         `time` TEXT,
+                         `note` TEXT,
+                         `price` BIGINT,
+                         `address` TEXT,
+                         `grade` TEXT,
+                         `subject` TEXT,
+                         FOREIGN KEY (`teacher_id`) REFERENCES `teacher`(`id`) ON DELETE CASCADE,
+                         FOREIGN KEY (`parent_id`) REFERENCES `parent`(`id`) ON DELETE CASCADE
+);
+
+-- 6. 反馈表 (feedback)
+CREATE TABLE `feedback` (
+                            `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+                            `sender_id` BIGINT NOT NULL,
+                            `message` TEXT NOT NULL,
+                            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            FOREIGN KEY (`sender_id`) REFERENCES `user`(`id`) ON DELETE CASCADE
+);
+
+-- 7. 公告表 (announcement)
+CREATE TABLE `announcement` (
+                                `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                `title` VARCHAR(255) NOT NULL,
+                                `content` TEXT NOT NULL,
+                                `created_by` BIGINT NOT NULL,
+                                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                `expiration_date` TIMESTAMP,
+                                FOREIGN KEY (`created_by`) REFERENCES `user`(`id`) ON DELETE CASCADE
+);
+
+-- 8. 评价表 (review)
+CREATE TABLE `review` (
+                          `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          `parent_id` BIGINT NOT NULL,
+                          `rating` INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+                          `review` TEXT,
+                          `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                          `teacher_id` BIGINT NOT NULL,
+                          FOREIGN KEY (`parent_id`) REFERENCES `parent`(`id`) ON DELETE CASCADE,
+                          FOREIGN KEY (`teacher_id`) REFERENCES `teacher`(`id`) ON DELETE CASCADE
+);
+
+-- 9. 数据统计表 (statistic)
+CREATE TABLE `statistic` (
+                             `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+                             `date` DATE NOT NULL,
+                             `teacher_count` INT DEFAULT 0,
+                             `order_count` INT DEFAULT 0,
+                             `Received_order_count` INT DEFAULT 0
+);
+
+-- 10. 审核表 (teacher_examine)
+CREATE TABLE `teacher_examine` (
+                                   `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                   `teacher_id` BIGINT NOT NULL,
+                                   `status` ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+                                   `audit_reason` TEXT,
+                                   `reason` TEXT,
+                                   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                   FOREIGN KEY (`teacher_id`) REFERENCES `teacher`(`id`) ON DELETE CASCADE
+);
+
+-- 12. 作业表 (homework)
+CREATE TABLE `homework` (
+                            `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+                            `title` VARCHAR(255) NOT NULL,
+                            `description` TEXT,
+                            `deadline` TIMESTAMP,
+                            `file_url` VARCHAR(255),
+                            `status` ENUM('incompleted', 'completed', 'overdue', 'unevaluated', 'Evaluated') DEFAULT 'incompleted',
+                            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            `parent_id` BIGINT,
+                            `teacher_id` BIGINT,
+                            FOREIGN KEY (`parent_id`) REFERENCES `parent`(`id`) ON DELETE CASCADE,
+                            FOREIGN KEY (`teacher_id`) REFERENCES `teacher`(`id`) ON DELETE CASCADE
+);
+
