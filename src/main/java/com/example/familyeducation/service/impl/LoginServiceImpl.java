@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -57,6 +58,13 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public ResponseResult logout() {
-        return null;
+        //1.从SecurityContextHolder中查找到Authentication
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        //2.从Authentication中获取LoginUser
+        LoginUser loginUser  = (LoginUser) authentication.getPrincipal();
+        //3.获取id并从Redis中删除，那样下次再进行过滤时就查询不到Redis中的数据，显示用户未登录
+        Integer userId = loginUser.getUser().getId();
+        redisCache.deleteObject(LOGIN_USER_KEY+userId);
+        return new ResponseResult(200,"成功退出登录");
     }
 }
