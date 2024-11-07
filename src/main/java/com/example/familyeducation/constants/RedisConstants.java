@@ -1,4 +1,4 @@
-package com.example.familyeducation.utils.constants;
+package com.example.familyeducation.constants;
 
 /**
  * @ClassDescription:Redis的静态变量名

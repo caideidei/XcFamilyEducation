@@ -6,7 +6,6 @@ import com.example.familyeducation.service.LoginService;
 import com.example.familyeducation.utils.JwtUtil;
 import com.example.familyeducation.utils.RedisCache;
 import com.example.familyeducation.utils.ResponseResult;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,7 +16,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Objects;
 
-import static com.example.familyeducation.utils.constants.RedisConstants.LOGIN_USER_KEY;
+import static com.example.familyeducation.constants.RedisConstants.LOGIN_USER_KEY;
 
 /**
  * @ClassDescription:

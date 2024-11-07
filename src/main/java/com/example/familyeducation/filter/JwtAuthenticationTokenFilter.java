@@ -1,10 +1,9 @@
-package com.example.familyeducation.utils.filter;
+package com.example.familyeducation.filter;
 
 import com.example.familyeducation.entity.LoginUser;
 import com.example.familyeducation.utils.JwtUtil;
 import com.example.familyeducation.utils.RedisCache;
 import io.jsonwebtoken.Claims;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
 
-import static com.example.familyeducation.utils.constants.RedisConstants.LOGIN_USER_KEY;
+import static com.example.familyeducation.constants.RedisConstants.LOGIN_USER_KEY;
 
 /**
  * @ClassDescription:自定义过滤器，获取请求头中的token并解析
