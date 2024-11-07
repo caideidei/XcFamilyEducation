@@ -17,7 +17,7 @@ public class PasswordEncoderTest {
 
     @Test
     public void testPassword(){
-        String rawPassword = "123456"; // 用户输入的明文密码
+        String rawPassword = "123457"; // 用户输入的明文密码
         String encodedPassword = passwordEncoder.encode(rawPassword);
         System.out.println("密码加密结果："+encodedPassword);
 

@@ -58,10 +58,11 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             throw new RuntimeException("redis中数据为空，用户未登录");
         }
         //5.将用户信息存入SecurityContextHolder
-        //TODO 获取当前用户权限信息封装到Authentication
+        //TODO获取当前用户权限信息封装到Authentication 直接从LoginUser中获取即可
         //5.1封装用户信息到Authentication
+
         UsernamePasswordAuthenticationToken authenticationToken
-                = new UsernamePasswordAuthenticationToken(loginUser, null, null);
+                = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
         //5.2将信息存入SecurityContextHolder
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         //6.放行

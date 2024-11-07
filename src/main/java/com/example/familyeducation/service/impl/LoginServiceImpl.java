@@ -39,6 +39,7 @@ public class LoginServiceImpl implements LoginService {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
         //2.使用SpringSecurity 中用于封装用户名密码认证信息的UsernamePasswordAuthenticationToken来进行认证
+        //这里会进行账号密码校验，不成功会报403
         Authentication authenticate = authenticationManager.authenticate(authenticationToken);
         //3.认证不通过报错
         if(Objects.isNull(authenticate)){
