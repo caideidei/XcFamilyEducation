@@ -1,5 +1,7 @@
 package com.example.familyeducation.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -7,7 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@Tag(name = "test", description = "test")
 public class HelloController {
+
+    @GetMapping("/t")
+    public String t1(){
+        return "111";
+    }
 
     @RequestMapping("/hello")
     public String hello(){

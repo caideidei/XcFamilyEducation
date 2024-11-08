@@ -8,6 +8,7 @@
         <version>2.7.16</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+
     <groupId>com.example</groupId>
     <artifactId>FamilyEducation</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -99,11 +100,11 @@
             <version>2.3.3</version>
         </dependency>
 
-        <!-- 添加springfox依赖 -->
+        <!-- swagger3 -->
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-boot-starter</artifactId>
-            <version>3.0.0</version>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.8.0</version>
         </dependency>
 
 

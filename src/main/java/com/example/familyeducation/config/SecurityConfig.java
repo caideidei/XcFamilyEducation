@@ -43,6 +43,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
+                // 允许 Swagger 相关路径的匿名访问
+                .antMatchers("/t","/swagger-ui/index.html", "/swagger-ui/**", "/swagger-resources/**", "/webjars/**", "/v3/api-docs/**").anonymous()
                 // 对于登录接口 允许匿名访问
                 .antMatchers("/user/login").anonymous()
                 .antMatchers("/hello/**").hasRole("ADMIN")//对于/hello的路径，只有ADMIN权限的用户才能访问
