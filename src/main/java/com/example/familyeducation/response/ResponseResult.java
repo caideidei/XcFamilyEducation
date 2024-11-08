@@ -1,4 +1,4 @@
-package com.example.familyeducation.utils;
+package com.example.familyeducation.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -9,11 +9,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  **/
 //注解：减少数据冗余，当你将 ResponseResult 对象序列化为 JSON 时，只有当对象的属性不为 null 时，才会包含在生成的 JSON 中
 @JsonInclude(JsonInclude.Include.NON_NULL)
+
 public class ResponseResult<T> {
     /**
      * 状态码
      */
     private Integer code;
+
     /**
      * 提示信息，如果有错误时，前端可以获取该字段进行提示
      */
@@ -62,4 +64,17 @@ public class ResponseResult<T> {
         this.msg = msg;
         this.data = data;
     }
+
+    public static ResponseResult<String> error(String message){
+        return new ResponseResult<>(500,message,null);
+    }
+
+//    @Override
+//    public String toString() {
+//        return "ResponseResult{" +
+//                "code=" + code +
+//                ", msg='" + msg + '\'' +
+//                ", data=" + data +
+//                '}';
+//    }
 }

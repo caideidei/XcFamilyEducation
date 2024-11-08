@@ -2,7 +2,7 @@ package com.example.familyeducation.controller;
 
 import com.example.familyeducation.entity.User;
 import com.example.familyeducation.service.LoginService;
-import com.example.familyeducation.utils.ResponseResult;
+import com.example.familyeducation.response.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

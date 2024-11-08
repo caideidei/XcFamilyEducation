@@ -2,7 +2,7 @@ package com.example.familyeducation.service;
 
 
 import com.example.familyeducation.entity.User;
-import com.example.familyeducation.utils.ResponseResult;
+import com.example.familyeducation.response.ResponseResult;
 
 /**
  * @ClassDescription:

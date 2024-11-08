@@ -5,7 +5,7 @@ import com.example.familyeducation.entity.User;
 import com.example.familyeducation.service.LoginService;
 import com.example.familyeducation.utils.JwtUtil;
 import com.example.familyeducation.utils.RedisCache;
-import com.example.familyeducation.utils.ResponseResult;
+import com.example.familyeducation.response.ResponseResult;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
