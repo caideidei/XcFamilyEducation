@@ -2,32 +2,31 @@ package com.example.familyeducation.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @Tag(name = "test", description = "test")
 public class HelloController {
-
+    //测试权限功能
     @GetMapping("/t")
     public String t1(){
         return "111";
     }
 
-    @RequestMapping("/hello")
+    @GetMapping("/hello")
     public String hello(){
         return "hello";
     }
 
-    @RequestMapping("/ok")
+    @GetMapping("/ok")
     public String ok(){
         return "ok";
     }
 
-    @RequestMapping("/ok/t1")
+    //测试异常处理
+    @GetMapping("/ok/t1")
     public int test1(){
         List<Integer> integers = new ArrayList<>();
         for (int i = 0; i < 10; i++){
@@ -40,12 +39,11 @@ public class HelloController {
         return 1;
     }
 
-    @RequestMapping("/ok/t2")
+    @GetMapping("/ok/t2")
     public int test2(){
         int t = 10/0;
         System.out.println(t);
         return 1;
     }
-
 
 }
