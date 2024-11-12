@@ -25,16 +25,6 @@ public class ResponseResult<T> {
      */
     private T data;
 
-    public ResponseResult(Integer code, String msg) {
-        this.code = code;
-        this.msg = msg;
-    }
-
-    public ResponseResult(Integer code, T data) {
-        this.code = code;
-        this.data = data;
-    }
-
     public Integer getCode() {
         return code;
     }
@@ -59,6 +49,16 @@ public class ResponseResult<T> {
         this.data = data;
     }
 
+    public ResponseResult(Integer code, String msg) {
+        this.code = code;
+        this.msg = msg;
+    }
+
+    public ResponseResult(Integer code, T data) {
+        this.code = code;
+        this.data = data;
+    }
+
     public ResponseResult(Integer code, String msg, T data) {
         this.code = code;
         this.msg = msg;
@@ -69,12 +69,9 @@ public class ResponseResult<T> {
         return new ResponseResult<>(500,message,null);
     }
 
-//    @Override
-//    public String toString() {
-//        return "ResponseResult{" +
-//                "code=" + code +
-//                ", msg='" + msg + '\'' +
-//                ", data=" + data +
-//                '}';
-//    }
+    public static <T>ResponseResult success(String message,T data){
+        return new ResponseResult<>(200,message,data);
+    }
+
 }
+
