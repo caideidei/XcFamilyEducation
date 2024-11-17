@@ -1,5 +1,6 @@
 package com.example.familyeducation.service;
 
+import com.example.familyeducation.dto.UserDTO;
 import com.example.familyeducation.response.ResponseResult;
 
 /**
@@ -9,4 +10,6 @@ import com.example.familyeducation.response.ResponseResult;
  **/
 public interface AdminService {
     ResponseResult selectAllAdmins();
+
+    ResponseResult insertAdmin(UserDTO userDTO);
 }
