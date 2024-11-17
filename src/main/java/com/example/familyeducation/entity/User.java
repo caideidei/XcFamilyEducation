@@ -17,7 +17,7 @@ public class User implements Serializable {
 
     @TableId(value = "id", type = IdType.AUTO) // 这里设置id为自增
     @Schema(name="id",description = "用户id号")
-    private Integer id;
+    private Long id;
 
     @Schema(name = "username", description = "用户名，唯一，非空")
     private String username;

@@ -26,6 +26,4 @@ public class Parent implements Serializable {
     @Schema(name = "realName", description = "家长真实姓名，非空")
     private String realName;
 
-    @Schema(name = "phoneNumber", description = "家长手机号，唯一，非空")
-    private String phoneNumber;
 }
