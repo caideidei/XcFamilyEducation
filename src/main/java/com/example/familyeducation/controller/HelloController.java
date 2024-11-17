@@ -4,6 +4,7 @@ import com.example.familyeducation.entity.LoginUser;
 import com.example.familyeducation.entity.User;
 import com.example.familyeducation.response.ResponseResult;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,11 +24,13 @@ public class HelloController {
     }
 
     @GetMapping("/hello")
+    @PreAuthorize("hasRole('ADMIN')")
     public String hello(){
         return "hello";
     }
 
     @GetMapping("/ok")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
     public String ok(){
         return "ok";
     }
