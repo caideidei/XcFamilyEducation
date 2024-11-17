@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -56,10 +57,9 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public ResponseResult login(User user) {
-        //TODO 这里要改为使用账号密码登录
         //1.构造用户名密码认证信息
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+                new UsernamePasswordAuthenticationToken(user.getPhoneNumber(), user.getPassword());
         //2.使用SpringSecurity 中用于封装用户名密码认证信息的UsernamePasswordAuthenticationToken来进行认证
         //这里会进行账号密码校验，不成功会报403
         Authentication authenticate = authenticationManager.authenticate(authenticationToken);
@@ -92,6 +92,7 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
+    @Transactional
     public ResponseResult register(User user) {
         //1.首先对传入的参数(用户名，手机号，密码，角色)进行非空判断
         String username = user.getUsername();
@@ -116,7 +117,7 @@ public class LoginServiceImpl implements LoginService {
         }else{
             //TODO 对用户手机号进行检验（使用手机验证码进行匹配，匹配不成功则不能注册成功）
             //3.未注册则进行注册，将用户信息存入数据库
-            //TODO 事务插入数据
+            //TODO事务插入数据
             //3.1将用户数据存入user表中
             userMapper.insert(user);
             //3.2根据role将数据存入teacher/parent表中

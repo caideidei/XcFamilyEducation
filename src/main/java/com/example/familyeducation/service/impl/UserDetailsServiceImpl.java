@@ -28,10 +28,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserMapper userMapper;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        //根据用户名查询用户信息
+    public UserDetails loadUserByUsername(String phoneNumber) throws UsernameNotFoundException {
+        //原来这个是springSecurity中进行查询登录的默认方法，本来是根据用户名查询，这里改为根据账号查询用户信息
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getUsername,username);
+        wrapper.eq(User::getPhoneNumber,phoneNumber);
         User user = userMapper.selectOne(wrapper);
         //如果查询不到数据就通过抛出异常来给出提示
         if(Objects.isNull(user)){
@@ -46,6 +46,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             list.add("ROLE_ADMIN");//注意这里添加自定义权限时要加前缀ROLE_，SpringSecurity会默认根据ROLE_去查找权限
         } else if (role.equals("teacher")) {
             list.add("ROLE_TEACHER");
+        }else{
+            list.add("ROLE_PARENT");
         }
         //封装成UserDetails对象返回
         return new LoginUser(user,list);

@@ -23,7 +23,7 @@ public class AdminMapperTest {
     public void insertTest(){
         Admin admin = new Admin();
         admin.setId(null);
-        admin.setUserId(1);
+        admin.setUserId(1L);
         adminMapper.insert(admin);
     }
     //查询
@@ -41,8 +41,8 @@ public class AdminMapperTest {
     @Test
     public void updateTest(){
         Admin admin = new Admin();
-        admin.setId(5);
-        admin.setUserId(2);
+        admin.setId(5L);
+        admin.setUserId(2L);
         admin.setLastLoginTime(LocalDateTime.now());
         admin.setCreatedAt(LocalDateTime.now());
         adminMapper.updateById(admin);
