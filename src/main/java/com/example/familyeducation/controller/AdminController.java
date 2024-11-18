@@ -31,9 +31,15 @@ public class AdminController {
         return adminService.insertAdmin(userDTO);
     }
 
-    @PostMapping("/updateAdmin")
+    @PutMapping("/updateAdmin")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseResult updateAdmin(@RequestBody User user){
         return adminService.updateAdmin(user);
+    }
+
+    @DeleteMapping("/deleteAdmin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseResult deleteAdmin(@RequestParam String phoneNumber){
+        return adminService.deleteAdmin(phoneNumber);
     }
 }

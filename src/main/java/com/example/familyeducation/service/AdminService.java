@@ -15,4 +15,6 @@ public interface AdminService {
     ResponseResult insertAdmin(UserDTO userDTO);
 
     ResponseResult updateAdmin(User user);
+
+    ResponseResult deleteAdmin(String phoneNumber);
 }

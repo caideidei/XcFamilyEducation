@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @ClassDescription:
+ * @ClassDescription:管理员相关接口
  * @Author:小菜
  * @Create:2024/11/11 16:23
  **/
@@ -40,6 +40,11 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * @author 小菜
+     * @date  2024/11/18
+     * @description 查询所有管理员信息
+     **/
     @Override
     public ResponseResult selectAllAdmins() {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -62,6 +67,11 @@ public class AdminServiceImpl implements AdminService {
         return new ResponseResult(200,"查询成功",userVOS);
     }
 
+    /**
+     * @author 小菜
+     * @date  2024/11/18
+     * @description 插入新管理员信息
+     **/
     @Override
     @Transactional
     public ResponseResult insertAdmin(UserDTO userDTO) {
@@ -108,6 +118,11 @@ public class AdminServiceImpl implements AdminService {
 
     }
 
+    /**
+     * @author 小菜
+     * @date  2024/11/18
+     * @description 根据登录管理员id更新管理员信息
+     **/
     @Override
     public ResponseResult updateAdmin(User user) {
         //1.1先从Holder中获取当前登录管理员id
@@ -130,9 +145,9 @@ public class AdminServiceImpl implements AdminService {
                 StringUtils.isEmpty(username) ||StringUtils.isEmpty(phoneNumber)||StringUtils.isEmpty(password)||StringUtils.isEmpty(role)){
             return ResponseResult.error("数据填写不完整，修改管理员信息失败");
         }
-        //2.判断手机号是否已经注册
+        //2.判断手机号是否已经注册(这里查询手机号是如果用户是自己是可以的，相当于修改自己的其他信息，手机号不变)
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("phone_number",phoneNumber);
+        queryWrapper.eq("phone_number",phoneNumber).ne("id",loginUserId);
         List<User> userList = userMapper.selectList(queryWrapper);
         if(!userList.isEmpty()){
             //2.1.手机号已经注册则报错
@@ -148,5 +163,37 @@ public class AdminServiceImpl implements AdminService {
             return ResponseResult.success("修改管理员信息成功",null);
         }
 
+    }
+
+    /**
+     * @author 小菜
+     * @date  2024/11/18
+     * @description 删除对应的管理员信息
+     **/
+    @Override
+    public ResponseResult deleteAdmin(String phoneNumber) {
+        int deleteAdminNumber = 0;//判断删除数量
+        //1.根据手机号查询信息
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("phone_number",phoneNumber);
+        User user = userMapper.selectOne(queryWrapper);
+        Long userId = user.getId();
+        //2.判断该管理员状态
+        String status = user.getStatus();
+        if(!status.equals("banned")){
+            //2.1不为banned时无法删除，报错
+            return ResponseResult.error("无法删除该管理员");
+        }else{
+            //3.为banned时可以删除，删除数据库中的信息
+            //3.1删除user表中的信息,admin中的信息会自动删除
+            deleteAdminNumber = userMapper.deleteById(userId);
+        }
+        //TODO 删除管理员后Redis中删除数据
+        //4.根据删除情况返回信息
+        if(deleteAdminNumber==0){
+            return ResponseResult.error("删除管理员失败");
+        }else{
+            return ResponseResult.success("删除管理员成功",null);
+        }
     }
 }

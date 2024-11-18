@@ -42,9 +42,10 @@ public class MapperTest {
     @Test
     public void testUpdateUser(){
         User user = new User();
-        user.setUsername("小刘老师");
+        user.setId(13L);
+        user.setUsername("小舒老师");
         user.setPassword("$2a$10$Z9aDmES148Yl1eVfmyYAXOMCet4Cb4tbdqY5Jix25NCnYsubhY3bO");
-        user.setPhoneNumber("222222");
+        user.setPhoneNumber("100100");
         user.setRole("parent");
         user.setEmail("222222@qq.com");
         userMapper.updateById(user);//注意这里传的是实体不是id
