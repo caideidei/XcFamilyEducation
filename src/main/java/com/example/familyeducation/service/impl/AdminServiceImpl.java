@@ -10,6 +10,7 @@ import com.example.familyeducation.mapper.AdminMapper;
 import com.example.familyeducation.mapper.UserMapper;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.AdminService;
+import com.example.familyeducation.utils.RedisCache;
 import com.example.familyeducation.vo.UserVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.example.familyeducation.constants.RedisConstants.LOGIN_USER_KEY;
 
 /**
  * @ClassDescription:管理员相关接口
@@ -39,6 +42,9 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RedisCache redisCache;
 
     /**
      * @author 小菜
@@ -187,8 +193,10 @@ public class AdminServiceImpl implements AdminService {
             //3.为banned时可以删除，删除数据库中的信息
             //3.1删除user表中的信息,admin中的信息会自动删除
             deleteAdminNumber = userMapper.deleteById(userId);
+            //TODO删除管理员后Redis中删除数据
+            redisCache.deleteObject(LOGIN_USER_KEY+userId);
         }
-        //TODO 删除管理员后Redis中删除数据
+
         //4.根据删除情况返回信息
         if(deleteAdminNumber==0){
             return ResponseResult.error("删除管理员失败");

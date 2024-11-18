@@ -7,5 +7,5 @@ package com.example.familyeducation.constants;
  **/
 public class RedisConstants {
     public static final String LOGIN_USER_KEY = "xc:login-jwt:";
-    public static final Long LOGIN_USER_TTL = 36000L;
+    public static final Integer LOGIN_USER_TTL = 120;
 }

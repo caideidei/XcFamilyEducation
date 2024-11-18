@@ -62,24 +62,19 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             id = claims.getSubject();
         } catch (Exception e) {
             //TODO使用统一异常类封装
-            //三更：throw new globalExceptionHandler.handleBusinessException(new BusinessException(400,"运行时异常：token不能为空"));
-            //童哥：
-            ResponseResult<Object> responseResult = new ResponseResult(401, "运行时异常：token不能为空",null);
+            ResponseResult<Object> responseResult = new ResponseResult(401, "token异常",null);
             String s = JSON.toJSONString(responseResult);
             response.getWriter().write(s);
             return;
-//            throw new AuthenticationException("无效的 token: " + e.getMessage()){};
         }
         //4.根据id从redis中获取用户信息
         String key = LOGIN_USER_KEY + id;
         LoginUser loginUser = redisCache.getCacheObject(key);
         if(Objects.isNull(loginUser)){
-            //throw new RuntimeException("运行时异常2：用户登录失败");
-            ResponseResult<Object> responseResult = new ResponseResult(401, "运行时异常：用户登录失败",null);
+            ResponseResult<Object> responseResult = new ResponseResult(401, "请重新登录",null);
             String s = JSON.toJSONString(responseResult);
             response.getWriter().write(s);
             return;
-//            throw new AuthenticationException("用户信息未找到") {};
         }
         //5.将用户信息存入SecurityContextHolder
         //TODO获取当前用户权限信息封装到Authentication 直接从LoginUser中获取即可

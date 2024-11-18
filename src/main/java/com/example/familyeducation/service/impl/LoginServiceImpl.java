@@ -26,8 +26,10 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static com.example.familyeducation.constants.RedisConstants.LOGIN_USER_KEY;
+import static com.example.familyeducation.constants.RedisConstants.LOGIN_USER_TTL;
 
 /**
  * @ClassDescription:
@@ -72,7 +74,7 @@ public class LoginServiceImpl implements LoginService {
         String userId = loginUser.getUser().getId().toString();
         String token = JwtUtil.createJWT(userId);//将userId进行token生成
         //5.封装数据到Redis中
-        redisCache.setCacheObject(LOGIN_USER_KEY+userId,loginUser);
+        redisCache.setCacheObject(LOGIN_USER_KEY+userId,loginUser,LOGIN_USER_TTL, TimeUnit.MINUTES);
         //6.最后将token返回前端
         HashMap<String, String> map = new HashMap<>();
         map.put("token:",token);
