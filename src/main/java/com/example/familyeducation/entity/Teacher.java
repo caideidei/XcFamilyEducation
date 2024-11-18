@@ -33,7 +33,7 @@ public class Teacher implements Serializable {
     private String intro;
 
     @Schema(name = "officialTeacher", description = "是否正式教师，默认 false")
-    private Boolean officialTeacher;
+    private Integer officialTeacher;
 
     @Schema(name = "subjects", description = "教师擅长科目，多个科目用逗号分隔")
     private String subjects;

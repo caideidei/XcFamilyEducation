@@ -3,6 +3,8 @@ package com.example.familyeducation.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.familyeducation.entity.User;
+import com.example.familyeducation.vo.TeacherVO;
+import org.apache.ibatis.annotations.Select;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +18,9 @@ public class MapperTest {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private TeacherMapper teacherMapper;
 
     //测试mybatis-plus查询
     @Test
@@ -118,6 +123,9 @@ public class MapperTest {
         userMapper.selectList(queryWrapper).forEach(System.out::println);
     }
 
+    @Test
+    public void testSelectAllTeachers(){
+       teacherMapper.selectAllTeachers().forEach(System.out::println);
 
-
+    }
 }

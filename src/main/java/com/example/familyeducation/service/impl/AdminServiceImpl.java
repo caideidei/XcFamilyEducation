@@ -147,16 +147,17 @@ public class AdminServiceImpl implements AdminService {
         String password = passwordEncoder.encode(rawPassword);
         user.setPassword(password);
         int updateAdminNumber = 0;//用来判断插入数据条数
+        //判断非空
         if(username==null||phoneNumber==null||password==null||role==null||
                 StringUtils.isEmpty(username) ||StringUtils.isEmpty(phoneNumber)||StringUtils.isEmpty(password)||StringUtils.isEmpty(role)){
             return ResponseResult.error("数据填写不完整，修改管理员信息失败");
         }
-        //2.判断手机号是否已经注册(这里查询手机号是如果用户是自己是可以的，相当于修改自己的其他信息，手机号不变)
+        //3.判断手机号是否已经注册(这里查询手机号是如果用户是自己是可以的，相当于修改自己的其他信息，手机号不变)
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("phone_number",phoneNumber).ne("id",loginUserId);
         List<User> userList = userMapper.selectList(queryWrapper);
         if(!userList.isEmpty()){
-            //2.1.手机号已经注册则报错
+            //3.1.手机号已经注册则报错
             return ResponseResult.error("该手机号已被注册");
         }else{
             //4.满足要求将数据存入数据库中
