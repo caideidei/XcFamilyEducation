@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.familyeducation.dto.UserDTO;
 import com.example.familyeducation.entity.Admin;
+import com.example.familyeducation.entity.LoginUser;
 import com.example.familyeducation.entity.User;
 import com.example.familyeducation.mapper.AdminMapper;
 import com.example.familyeducation.mapper.UserMapper;
@@ -12,9 +13,12 @@ import com.example.familyeducation.service.AdminService;
 import com.example.familyeducation.vo.UserVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -100,6 +104,48 @@ public class AdminServiceImpl implements AdminService {
             return ResponseResult.error("新增管理员失败");
         }else{
             return ResponseResult.success("新增管理员成功",null);
+        }
+
+    }
+
+    @Override
+    public ResponseResult updateAdmin(User user) {
+        //1.1先从Holder中获取当前登录管理员id
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+        Long loginUserId = loginUser.getUser().getId();
+        user.setId(loginUserId);
+        //2.根据获取到的id来修改管理员信息保证修改的只能是当前登录管理员的信息
+        //2.1判断封装的数据是否满足要求（账号唯一、非空等），不满足报错
+        //首先对传入的参数(用户名，手机号，密码，角色)进行非空判断
+        String username = user.getUsername();
+        String phoneNumber = user.getPhoneNumber();
+        String rawPassword = user.getPassword();
+        String role = user.getRole();
+        //密码加密
+        String password = passwordEncoder.encode(rawPassword);
+        user.setPassword(password);
+        int updateAdminNumber = 0;//用来判断插入数据条数
+        if(username==null||phoneNumber==null||password==null||role==null||
+                StringUtils.isEmpty(username) ||StringUtils.isEmpty(phoneNumber)||StringUtils.isEmpty(password)||StringUtils.isEmpty(role)){
+            return ResponseResult.error("数据填写不完整，修改管理员信息失败");
+        }
+        //2.判断手机号是否已经注册
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("phone_number",phoneNumber);
+        List<User> userList = userMapper.selectList(queryWrapper);
+        if(!userList.isEmpty()){
+            //2.1.手机号已经注册则报错
+            return ResponseResult.error("该手机号已被注册");
+        }else{
+            //4.满足要求将数据存入数据库中
+            updateAdminNumber = userMapper.updateById(user);
+        }
+        //5.判断是否修改成功并返回信息
+        if(updateAdminNumber==0){
+            return ResponseResult.error("修改管理员信息失败");
+        }else{
+            return ResponseResult.success("修改管理员信息成功",null);
         }
 
     }

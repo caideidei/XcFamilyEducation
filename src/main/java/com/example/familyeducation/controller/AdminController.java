@@ -1,6 +1,7 @@
 package com.example.familyeducation.controller;
 
 import com.example.familyeducation.dto.UserDTO;
+import com.example.familyeducation.entity.User;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,5 +29,11 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseResult insertAdmin(@RequestBody UserDTO userDTO){
         return adminService.insertAdmin(userDTO);
+    }
+
+    @PostMapping("/updateAdmin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseResult updateAdmin(@RequestBody User user){
+        return adminService.updateAdmin(user);
     }
 }
