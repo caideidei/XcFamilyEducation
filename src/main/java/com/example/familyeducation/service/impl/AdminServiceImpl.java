@@ -70,7 +70,7 @@ public class AdminServiceImpl implements AdminService {
             userVO.setPicture(user.getPicture());
             return userVO;
         }).collect(Collectors.toList());
-        return new ResponseResult(200,"查询成功",userVOS);
+        return ResponseResult.success("查询成功",userVOS);
     }
 
     /**

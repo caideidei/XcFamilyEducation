@@ -41,7 +41,7 @@ public class TeacherServiceImpl implements TeacherService {
      **/
     @Override
     public ResponseResult selectAllTeachers() {
-        //1.查询数据
+        //1.查询两张表中的数据并封装为TeacherVO
         List<TeacherVO> teacherVOS = teacherMapper.selectAllTeachers();
         //2.返回数据
         return ResponseResult.success("查询教师数据成功",teacherVOS);
