@@ -1,5 +1,6 @@
 package com.example.familyeducation.service;
 
+import com.example.familyeducation.dto.ParentDTO;
 import com.example.familyeducation.response.ResponseResult;
 
 /**
@@ -9,4 +10,6 @@ import com.example.familyeducation.response.ResponseResult;
  **/
 public interface ParentService {
     ResponseResult selectAllParents();
+
+    ResponseResult updateParent(ParentDTO parentDTO);
 }

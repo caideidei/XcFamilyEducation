@@ -1,13 +1,11 @@
 package com.example.familyeducation.controller;
 
+import com.example.familyeducation.dto.ParentDTO;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.ParentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @ClassDescription:
@@ -25,5 +23,11 @@ public class ParentController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseResult selectAllParents(){
         return parentService.selectAllParents();
+    }
+
+    @PutMapping("/updateParent")
+    @PreAuthorize("hasRole('PARENT')")
+    public ResponseResult updateParent(@RequestBody ParentDTO parentDTO){
+        return parentService.updateParent(parentDTO);
     }
 }

@@ -62,9 +62,15 @@ public class TeacherServiceImpl implements TeacherService {
         User user = new User();
         BeanUtils.copyProperties(teacherDTO,user);
         user.setId(loginUserId);
+
         Teacher teacher = new Teacher();
         teacher.setUserId(loginUserId);
         BeanUtils.copyProperties(teacherDTO,teacher);
+        //通过userId找到teacher表中的id
+        QueryWrapper<Teacher> teacherQueryWrapper = new QueryWrapper<>();
+        teacherQueryWrapper.eq("user_id",loginUserId);
+        Long teacherId = teacherMapper.selectOne(teacherQueryWrapper).getId();
+        teacher.setId(teacherId);
         //密码加密
         String rawPassword = teacherDTO.getPassword();
         String password = passwordEncoder.encode(rawPassword);
@@ -84,6 +90,7 @@ public class TeacherServiceImpl implements TeacherService {
                 return ResponseResult.error("该手机号已被注册");
             }else{
                 //5.不存在相同手机号则将数据分别插入user表和teacher表中
+                //注意这里更新必须要有主键id
                 updateTeacherNumber = userMapper.updateById(user);
                 teacherMapper.updateById(teacher);
             }
@@ -103,7 +110,6 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public ResponseResult updateTeacherStatus(TeacherDTO teacherDTO) {
         int updateTeacherNumber = 0;//插入数据条数
-
         //1.将teacherDTO封装为user
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
         //因为管理员只能修改status，所以这里可以根据phone_number来查询到教师id
