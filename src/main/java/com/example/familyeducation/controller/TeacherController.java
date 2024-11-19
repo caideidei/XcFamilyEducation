@@ -25,13 +25,14 @@ public class TeacherController {
         return teacherService.selectAllTeachers();
     }
 
-    @PostMapping("/updateTeacher")
+    @PutMapping("/updateTeacher")
     @PreAuthorize("hasAnyRole('TEACHER')")
     public ResponseResult updateTeacher(@RequestBody TeacherDTO teacherDTO){
         return teacherService.updateTeacher(teacherDTO);
     }
 
-    @PostMapping("/updateTeacherStatus")
+    @PutMapping("/updateTeacherStatus")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseResult updateTeacherStatus(@RequestBody TeacherDTO teacherDTO){
         return teacherService.updateTeacherStatus(teacherDTO);
     }
