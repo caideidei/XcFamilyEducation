@@ -119,7 +119,14 @@ public class TeacherServiceImpl implements TeacherService {
         User user = new User();
         BeanUtils.copyProperties(teacherDTO,user);
         user.setId(teacherId);
-        user.setStatus("banned");//修改教师状态
+        String status = updatedTeacher.getStatus();
+        //修改教师状态
+        if(status.equals("banned")){
+            user.setStatus("active");
+        }
+        if(status.equals("active")){
+        user.setStatus("banned");
+        }
         //密码加密
         String rawPassword = teacherDTO.getPassword();
         String password = passwordEncoder.encode(rawPassword);
