@@ -9,8 +9,8 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-@TableName(value = "order")
-@Schema(name = "Order", description = "家教订单信息")
+@TableName(value = "orders")
+@Schema(name = "Orders", description = "家教订单信息")
 public class Order implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -25,7 +25,7 @@ public class Order implements Serializable {
     @Schema(name = "parentId", description = "家长ID，外键，指向 parents 表的 id")
     private Long parentId;
 
-    @Schema(name = "status", description = "订单状态，默认 'notAccepted'")
+    @Schema(name = "status", description = "订单状态，默认 'pendingReview'")
     private String status;
 
     @Schema(name = "time", description = "家教时间，文字描述")

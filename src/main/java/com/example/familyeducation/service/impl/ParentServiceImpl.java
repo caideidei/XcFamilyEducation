@@ -104,4 +104,10 @@ public class ParentServiceImpl implements ParentService {
             return ResponseResult.success("家长信息更新成功",null);
         }
     }
+
+    @Override
+    public Long selectParentId(QueryWrapper<Parent> parentQueryWrapper) {
+        Long id = parentMapper.selectOne(parentQueryWrapper).getId();
+        return id;
+    }
 }
