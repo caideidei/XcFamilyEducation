@@ -105,6 +105,11 @@ public class ParentServiceImpl implements ParentService {
         }
     }
 
+    /**
+     * @author 小菜
+     * @date  2024/11/23
+     * @description 根据条件查询parent_id
+     **/
     @Override
     public Long selectParentId(QueryWrapper<Parent> parentQueryWrapper) {
         Long id = parentMapper.selectOne(parentQueryWrapper).getId();

@@ -11,15 +11,26 @@ import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.OrderService;
 import com.example.familyeducation.service.ParentService;
 import com.example.familyeducation.service.impl.UserDetailsServiceImpl;
+import com.example.familyeducation.utils.RedisCache;
 import com.example.familyeducation.utils.ValidationUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.parameters.P;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static com.example.familyeducation.constants.OrderConstants.*;
+import static com.example.familyeducation.constants.RedisConstants.ORDER_MESSAGE_KEY;
+import static com.example.familyeducation.constants.RedisConstants.ORDER_MESSAGE_TTL;
 
 /**
  * @ClassDescription:
@@ -35,6 +46,16 @@ public class OrderController {
     @Autowired
     private ParentService parentService;
 
+    @Autowired
+    private RedisCache redisCache;
+
+    //TODO 修改数据库的数据时要删除Redis中的对应数据
+
+    /**
+     * @author 小菜
+     * @date  2024/11/23
+     * @description 家长发布订单
+     **/
     @PostMapping("/insertOrder")
     @PreAuthorize("hasRole('PARENT')")
     public ResponseResult insertOrder(@RequestBody OrderDTO orderDTO){
@@ -57,6 +78,8 @@ public class OrderController {
             parentQueryWrapper.eq("user_id",loginUserId);
             Long parentId = parentService.selectParentId(parentQueryWrapper);
             order.setParentId(parentId);
+
+            order.setCreatedAt(LocalDateTime.now());
             //3.插入数据到数据库
             insertOrderNumber = orderService.insertOrder(order);
         }
@@ -67,4 +90,132 @@ public class OrderController {
             return ResponseResult.success("成功新增家教订单",null);
         }
     }
+
+    /**
+     * @author 小菜
+     * @date  2024/11/23
+     * @description 管理员审核订单状态为通过
+     **/
+    @PutMapping("/passOrder")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseResult passOrder(@RequestBody Order order){
+        //1.直接修改状态为通过并传给数据库
+        order.setStatus(ORDER_REVIEW_PASSED);
+        int update = 0;
+        update = orderService.updateOrder(order);
+        if(update==0){
+            return ResponseResult.error("修改状态失败");
+        }else {
+            return ResponseResult.success("修改状态成功",null);
+        }
+    }
+
+    /**
+     * @author 小菜
+     * @date  2024/11/23
+     * @description 管理员审核订单为失败状态
+     **/
+    @PutMapping("/failOrder")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseResult failOrder(@RequestBody Order order){
+        //1.直接修改状态为通过并传给数据库
+        order.setStatus(ORDER_REVIEW_FAILED);
+        int update = 0;
+        update = orderService.updateOrder(order);
+        if(update==0){
+            return ResponseResult.error("修改状态失败");
+        }else {
+            return ResponseResult.success("修改状态成功",null);
+        }
+    }
+
+    /**
+     * @author 小菜
+     * @date  2024/11/23
+     * @description 查询自己的订单信息
+     **/
+    @GetMapping("/selectMyOrders")
+    @PreAuthorize("hasRole('PARENT')")
+    public ResponseResult selectMyOrders(){
+        //1.获取当前登录用户id并查询对应parent_id
+        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long loginUserId = loginUser.getUser().getId();
+        QueryWrapper<Parent> parentQueryWrapper = new QueryWrapper<>();
+        parentQueryWrapper.eq("user_id",loginUserId);
+        Long parentId = parentService.selectParentId(parentQueryWrapper);
+        //2.根据当前parentId查询对应订单数据
+        QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
+        orderQueryWrapper.eq("parent_id",parentId);
+        List<Order> orderList = orderService.selectMyOrders(orderQueryWrapper);
+        return ResponseResult.success("成功查询到订单",orderList);
+    }
+
+    /**
+     * @author 小菜
+     * @date  2024/11/23
+     * @description 重新修改订单（审核失败，成功的订单）
+     **/
+    @PutMapping("/republishOrder")
+    @PreAuthorize("hasRole('PARENT')")
+    public ResponseResult republishOrder(@RequestBody Order order){
+        int updateOrderNumber = 0;
+        //1.获取当前登录用户id
+        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long loginUserId = loginUser.getUser().getId();
+        QueryWrapper<Parent> parentQueryWrapper = new QueryWrapper<>();
+        parentQueryWrapper.eq("user_id",loginUserId);
+        Long parentId = parentService.selectParentId(parentQueryWrapper);
+        //2.判断修改的是否是自己的订单
+        if(parentId!=order.getParentId()){
+            //2.1修改的不是自己的订单，报错
+            return ResponseResult.error("无法修改别人的订单");
+        }else{
+            //3.修改的是自己的订单
+            //3.1修改新订单状态
+            order.setStatus(ORDER_PENDING_REVIEW);
+            //3.2将新订单对象插入数据库
+            updateOrderNumber = orderService.updateOrder(order);
+        }
+        //4.根据插入情况向前端返回数据
+        if(updateOrderNumber==0){
+            return ResponseResult.error("修改订单失败");
+        }else{
+            return ResponseResult.success("修改订单成功",null);
+        }
+    }
+
+    @GetMapping("/selectAllOrders")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
+    public ResponseResult selectAllOrders(){
+        List<Order> orderList;
+        //1.从Redis中查询数据,查询以xc:order:开头的所有键
+        Collection<String> keys = redisCache.keys(ORDER_MESSAGE_KEY+"*");
+
+        if(keys!=null&&!keys.isEmpty()){
+            //1.1Redis中存在对应数据直接返回,可以取得每个订单并添加到List中返回，也可以使用下面方法
+            orderList= keys.stream()
+                    .map(key->(Order)redisCache.getCacheObject(key))
+                    .collect(Collectors.toList());
+            if(!orderList.isEmpty()){
+                return ResponseResult.success("成功查询订单(Redis):",orderList);
+            }
+        }
+        //2.Redis中不存在对应数据则从数据库中查询数据
+        QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
+        orderQueryWrapper.notIn("status", Arrays.asList("pendingReview","reviewFailed"));
+        orderList= orderService.selectAllOrders(orderQueryWrapper);
+        //2.1数据库中不存在对应数据，返回错误信息
+        if(orderList==null||orderList.isEmpty()){
+            return ResponseResult.error("没有订单信息");
+        }
+        //3.数据库存在数据，将数据存到Redis中
+        for (Order order : orderList) {
+            String key = ORDER_MESSAGE_KEY + order.getId();
+            redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
+        }
+        //3.1将从数据库中查询到的数据返回前端
+        return ResponseResult.success("成功查询订单(数据库):",orderList);
+    }
+
+
 }
