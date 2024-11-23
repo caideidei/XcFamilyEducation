@@ -2,14 +2,12 @@ package com.example.familyeducation.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.familyeducation.dto.OrderDTO;
-import com.example.familyeducation.entity.LoginUser;
-import com.example.familyeducation.entity.Order;
-import com.example.familyeducation.entity.Parent;
-import com.example.familyeducation.entity.User;
+import com.example.familyeducation.entity.*;
 import com.example.familyeducation.mapper.UserMapper;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.OrderService;
 import com.example.familyeducation.service.ParentService;
+import com.example.familyeducation.service.TeacherService;
 import com.example.familyeducation.service.impl.UserDetailsServiceImpl;
 import com.example.familyeducation.utils.RedisCache;
 import com.example.familyeducation.utils.ValidationUtil;
@@ -47,9 +45,12 @@ public class OrderController {
     private ParentService parentService;
 
     @Autowired
+    private TeacherService teacherService;
+
+    @Autowired
     private RedisCache redisCache;
 
-    //TODO 修改数据库的数据时要删除Redis中的对应数据
+    //TODO 修改数据库的数据时要修改Redis中的对应数据，同时查询所有订单时，如果其他有订单改变，就不会查询完整（Redis数据更新问题）
 
     /**
      * @author 小菜
@@ -71,12 +72,7 @@ public class OrderController {
             Order order = new Order();
             BeanUtils.copyProperties(orderDTO,order);
             //2.2获取当前登录用户id对应的parent_id并将其赋值给parent_id
-            LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            Long loginUserId = loginUser.getUser().getId();//loginUserId对应的就是user_id
-
-            QueryWrapper<Parent> parentQueryWrapper = new QueryWrapper<>();
-            parentQueryWrapper.eq("user_id",loginUserId);
-            Long parentId = parentService.selectParentId(parentQueryWrapper);
+            Long parentId = getParentId();
             order.setParentId(parentId);
 
             order.setCreatedAt(LocalDateTime.now());
@@ -138,11 +134,7 @@ public class OrderController {
     @PreAuthorize("hasRole('PARENT')")
     public ResponseResult selectMyOrders(){
         //1.获取当前登录用户id并查询对应parent_id
-        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long loginUserId = loginUser.getUser().getId();
-        QueryWrapper<Parent> parentQueryWrapper = new QueryWrapper<>();
-        parentQueryWrapper.eq("user_id",loginUserId);
-        Long parentId = parentService.selectParentId(parentQueryWrapper);
+        Long parentId = getParentId();
         //2.根据当前parentId查询对应订单数据
         QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
         orderQueryWrapper.eq("parent_id",parentId);
@@ -160,11 +152,7 @@ public class OrderController {
     public ResponseResult republishOrder(@RequestBody Order order){
         int updateOrderNumber = 0;
         //1.获取当前登录用户id
-        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long loginUserId = loginUser.getUser().getId();
-        QueryWrapper<Parent> parentQueryWrapper = new QueryWrapper<>();
-        parentQueryWrapper.eq("user_id",loginUserId);
-        Long parentId = parentService.selectParentId(parentQueryWrapper);
+        Long parentId = getParentId();
         //2.判断修改的是否是自己的订单
         if(parentId!=order.getParentId()){
             //2.1修改的不是自己的订单，报错
@@ -202,7 +190,7 @@ public class OrderController {
         }
         //2.Redis中不存在对应数据则从数据库中查询数据
         QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
-        orderQueryWrapper.notIn("status", Arrays.asList("pendingReview","reviewFailed"));
+        orderQueryWrapper.notIn("status", Arrays.asList(ORDER_PENDING_REVIEW,ORDER_REVIEW_FAILED));
         orderList= orderService.selectAllOrders(orderQueryWrapper);
         //2.1数据库中不存在对应数据，返回错误信息
         if(orderList==null||orderList.isEmpty()){
@@ -217,5 +205,84 @@ public class OrderController {
         return ResponseResult.success("成功查询订单(数据库):",orderList);
     }
 
+    @PutMapping("/inTrial")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseResult inTrail(@RequestBody Order order){
+        //1.判断订单状态，是否能进行试课
+        if(!order.getStatus().equals(ORDER_REVIEW_PASSED)){
+            //1.1订单不为reviewPassed不能进行试课
+            return ResponseResult.error("无法修改订单（试课）");
+        }
+        //2.获得当前登录教师id
+        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long loginUserId = loginUser.getUser().getId();
+        QueryWrapper<Teacher> teacherQueryWrapper = new QueryWrapper<>();
+        teacherQueryWrapper.eq("user_id",loginUserId);
+        Long teacherId = teacherService.selectTeacherId(teacherQueryWrapper);
+        //3.修改order数据
+        order.setStatus(ORDER_IN_TRIAL);
+        order.setTeacherId(teacherId);
+        //3.存入数据库
+        int updateOrder = orderService.updateOrder(order);
+        //4.判断更新情况
+        if(updateOrder==0){
+            return ResponseResult.error("更新订单失败");
+        }else{
+            return ResponseResult.success("更新订单成功",null);
+        }
+    }
+
+    @PutMapping("/trialFailed")
+    @PreAuthorize("hasRole('PARENT')")
+    public ResponseResult trialFailed(@RequestBody Order order){
+        //1.获取当前登录家长id
+        Long parentId = getParentId();
+        //判断能否进行修改订单
+        if(parentId!=order.getParentId()||!order.getStatus().equals(ORDER_IN_TRIAL)){
+            return ResponseResult.error("无法修改订单信息");
+        }
+        //2.修改订单状态
+        //mybatis-plus会忽略null值，属性要加上@TableField(updateStrategy = FieldStrategy.IGNORED)注解
+        order.setTeacherId(null);
+        order.setStatus(ORDER_REVIEW_PASSED);
+        //3.更新数据库表
+        int updateOrderNumber = orderService.updateOrder(order);
+        //4.判断更新情况
+        if(updateOrderNumber==0){
+            return ResponseResult.error("更新订单信息失败");
+        }else{
+            return ResponseResult.success("成功更新订单信息",null);
+        }
+    }
+
+    @PutMapping("/trialPassed")
+    @PreAuthorize("hasRole('PARENT')")
+    public ResponseResult trailPassed(@RequestBody Order order){
+        //1.获取当前登录家长id
+        Long parentId = getParentId();
+        //判断能否进行修改订单
+        if(parentId!=order.getParentId()||!order.getStatus().equals(ORDER_IN_TRIAL)){
+            return ResponseResult.error("无法修改订单信息");
+        }
+        //2.修改订单状态
+        order.setStatus(ORDER_ACCEPTED);
+        //3.更新数据库表
+        int updateOrderNumber = orderService.updateOrder(order);
+        //4.判断更新情况
+        if(updateOrderNumber==0){
+            return ResponseResult.error("更新订单信息失败");
+        }else{
+            return ResponseResult.success("成功更新订单信息",null);
+        }
+    }
+
+    public Long getParentId(){
+        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long loginUserId = loginUser.getUser().getId();
+        QueryWrapper<Parent> parentQueryWrapper = new QueryWrapper<>();
+        parentQueryWrapper.eq("user_id",loginUserId);
+        Long parentId = parentService.selectParentId(parentQueryWrapper);
+        return parentId;
+    }
 
 }

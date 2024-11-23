@@ -1,6 +1,8 @@
 package com.example.familyeducation.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.familyeducation.dto.TeacherDTO;
+import com.example.familyeducation.entity.Teacher;
 import com.example.familyeducation.response.ResponseResult;
 
 /**
@@ -14,4 +16,6 @@ public interface TeacherService {
     ResponseResult updateTeacher(TeacherDTO teacherDTO);
 
     ResponseResult updateTeacherStatus(TeacherDTO teacherDTO);
+
+    Long selectTeacherId(QueryWrapper<Teacher> teacherQueryWrapper);
 }

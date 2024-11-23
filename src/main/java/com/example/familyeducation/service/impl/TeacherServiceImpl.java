@@ -156,4 +156,9 @@ public class TeacherServiceImpl implements TeacherService {
         }
     }
 
+    @Override
+    public Long selectTeacherId(QueryWrapper<Teacher> teacherQueryWrapper) {
+        return teacherMapper.selectOne(teacherQueryWrapper).getId();
+    }
+
 }

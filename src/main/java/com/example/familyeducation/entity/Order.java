@@ -1,9 +1,6 @@
 package com.example.familyeducation.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -22,6 +19,7 @@ public class Order implements Serializable {
     private Long id;
 
     @Schema(name = "teacherId", description = "教师ID，外键，指向 teachers 表的 id")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long teacherId;
 
     @Schema(name = "parentId", description = "家长ID，外键，指向 parents 表的 id")
