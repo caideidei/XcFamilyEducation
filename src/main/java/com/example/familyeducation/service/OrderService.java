@@ -1,6 +1,9 @@
 package com.example.familyeducation.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.familyeducation.entity.Order;
+
+import java.util.List;
 
 /**
  * @ClassDescription:
@@ -9,4 +12,10 @@ import com.example.familyeducation.entity.Order;
  **/
 public interface OrderService {
     int insertOrder(Order order);
+    int updateOrder(Order order);
+
+
+    List<Order> selectMyOrders(QueryWrapper<Order> orderQueryWrapper);
+
+    List<Order> selectAllOrders(QueryWrapper<Order> orderQueryWrapper);
 }

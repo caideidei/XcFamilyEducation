@@ -2,7 +2,9 @@ package com.example.familyeducation.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.familyeducation.entity.Order;
 import com.example.familyeducation.entity.User;
+import com.example.familyeducation.service.OrderService;
 import com.example.familyeducation.vo.TeacherVO;
 import org.apache.ibatis.annotations.Select;
 import org.junit.jupiter.api.Test;
@@ -15,12 +17,26 @@ import java.util.List;
 
 @SpringBootTest
 public class MapperTest {
+    //        eq相等   ne不相等，   gt大于，    lt小于         ge大于等于       le 小于等于
 
     @Autowired
     private UserMapper userMapper;
 
     @Autowired
     private TeacherMapper teacherMapper;
+
+    @Autowired
+    private OrderService orderService;
+
+    //测试不等于多个值查询
+    @Test
+    public void testSelect(){
+        List<Order> orderList;
+        QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
+        orderQueryWrapper.notIn("status", Arrays.asList("pendingReview"));
+        orderList= orderService.selectAllOrders(orderQueryWrapper);
+        orderList.forEach(System.out::println);
+    }
 
     //测试mybatis-plus查询
     @Test
@@ -125,7 +141,7 @@ public class MapperTest {
 
     @Test
     public void testSelectAllTeachers(){
-       teacherMapper.selectAllTeachers().forEach(System.out::println);
+        teacherMapper.selectAllTeachers().forEach(System.out::println);
 
     }
 }
