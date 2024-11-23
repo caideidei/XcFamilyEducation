@@ -16,10 +16,13 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static com.example.familyeducation.constants.OrderConstants.ORDER_REVIEW_FAILED;
+import static com.example.familyeducation.constants.OrderConstants.ORDER_REVIEW_PASSED;
 
 /**
  * @ClassDescription:
@@ -35,6 +38,11 @@ public class OrderController {
     @Autowired
     private ParentService parentService;
 
+    /**
+     * @author 小菜
+     * @date  2024/11/23
+     * @description 家长发布订单
+     **/
     @PostMapping("/insertOrder")
     @PreAuthorize("hasRole('PARENT')")
     public ResponseResult insertOrder(@RequestBody OrderDTO orderDTO){
@@ -57,6 +65,8 @@ public class OrderController {
             parentQueryWrapper.eq("user_id",loginUserId);
             Long parentId = parentService.selectParentId(parentQueryWrapper);
             order.setParentId(parentId);
+
+            order.setCreatedAt(LocalDateTime.now());
             //3.插入数据到数据库
             insertOrderNumber = orderService.insertOrder(order);
         }
@@ -67,4 +77,65 @@ public class OrderController {
             return ResponseResult.success("成功新增家教订单",null);
         }
     }
+
+    /**
+     * @author 小菜
+     * @date  2024/11/23
+     * @description 管理员审核订单状态为通过
+     **/
+    @PutMapping("/passOrder")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseResult passOrder(@RequestBody Order order){
+        //1.直接修改状态为通过并传给数据库
+        order.setStatus(ORDER_REVIEW_PASSED);
+        int update = 0;
+        update = orderService.updateStatusToPassed(order);
+        if(update==0){
+            return ResponseResult.error("修改状态失败");
+        }else {
+            return ResponseResult.success("修改状态成功",null);
+        }
+    }
+
+    /**
+     * @author 小菜
+     * @date  2024/11/23
+     * @description 管理员审核订单为失败状态
+     **/
+    @PutMapping("/failOrder")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseResult failOrder(@RequestBody Order order){
+        //1.直接修改状态为通过并传给数据库
+        order.setStatus(ORDER_REVIEW_FAILED);
+        int update = 0;
+        update = orderService.updateStatusToPassed(order);
+        if(update==0){
+            return ResponseResult.error("修改状态失败");
+        }else {
+            return ResponseResult.success("修改状态成功",null);
+        }
+    }
+
+    /**
+     * @author 小菜
+     * @date  2024/11/23
+     * @description 查询自己的订单信息
+     **/
+    @GetMapping("/selectMyOrders")
+    @PreAuthorize("hasRole('PARENT')")
+    public ResponseResult selectMyOrders(){
+        //1.获取当前登录用户id并查询对应parent_id
+        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long loginUserId = loginUser.getUser().getId();
+        QueryWrapper<Parent> parentQueryWrapper = new QueryWrapper<>();
+        parentQueryWrapper.eq("user_id",loginUserId);
+        Long parentId = parentService.selectParentId(parentQueryWrapper);
+        //2.根据当前parentId查询对应订单数据
+        QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
+        orderQueryWrapper.eq("parent_id",parentId);
+        List<Order> orderList = orderService.selectMyOrders(orderQueryWrapper);
+        return ResponseResult.success("成功查询到订单",orderList);
+    }
+
+
 }
