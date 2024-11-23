@@ -4,11 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 @Data
 @TableName(value = "orders")
@@ -47,8 +45,4 @@ public class Order implements Serializable {
 
     @Schema(name = "subject", description = "家教科目")
     private String subject;
-
-    @Schema(name = "created_at", description = "发布时间")
-//    @JsonIgnore
-    private LocalDateTime createdAt;
 }
