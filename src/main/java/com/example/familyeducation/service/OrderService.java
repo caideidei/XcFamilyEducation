@@ -18,4 +18,6 @@ public interface OrderService {
     List<Order> selectMyOrders(QueryWrapper<Order> orderQueryWrapper);
 
     List<Order> selectAllOrders(QueryWrapper<Order> orderQueryWrapper);
+
+    Long getTeacherId(QueryWrapper<Order> orderQueryWrapper);
 }

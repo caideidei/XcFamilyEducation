@@ -53,9 +53,25 @@ public class OrderServiceImpl implements OrderService {
         return orderList;
     }
 
+    /**
+     * @author 小菜
+     * @date  2024/11/24
+     * @description 查询所有审核通过的订单
+     **/
     @Override
     public List<Order> selectAllOrders(QueryWrapper<Order> orderQueryWrapper) {
         List<Order> orderList = orderMapper.selectList(orderQueryWrapper);
         return orderList;
+    }
+
+    /**
+     * @author 小菜
+     * @date  2024/11/24
+     * @description 查询订单相关的教师id
+     **/
+    @Override
+    public Long getTeacherId(QueryWrapper<Order> orderQueryWrapper) {
+        Long teacherId = orderMapper.selectOne(orderQueryWrapper).getTeacherId();
+        return teacherId;
     }
 }

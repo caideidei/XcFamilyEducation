@@ -20,6 +20,9 @@ public class Homework implements Serializable {
     @Schema(name = "id", description = "作业ID，主键，自增")
     private Long id;
 
+    @Schema(name = "orderId", description = "订单ID，外键，指向 order 表的 id")
+    private Long orderId;
+
     @Schema(name = "title", description = "作业标题，非空")
     private String title;
 
@@ -29,18 +32,16 @@ public class Homework implements Serializable {
     @Schema(name = "deadline", description = "截止时间")
     private LocalDateTime deadline;
 
-    @Schema(name = "fileUrl", description = "作业文件URL")
-    private String fileUrl;
-
     @Schema(name = "status", description = "作业状态，默认 'incompleted'")
     private String status;
 
     @Schema(name = "createdAt", description = "创建时间，默认当前时间")
     private LocalDateTime createdAt;
 
-    @Schema(name = "parentId", description = "家长ID，外键，指向 parent 表的 id")
-    private Long parentId;
+    @Schema(name = "fileUrl", description = "提交作业文件URL")
+    private String fileUrl;
 
-    @Schema(name = "teacherId", description = "教师ID，外键，指向 teacher 表的 id")
-    private Long teacherId;
+    @Schema(name = "review", description = "教师反馈")
+    private String review;
+
 }

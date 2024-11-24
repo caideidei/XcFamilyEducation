@@ -9,6 +9,7 @@ import com.example.familyeducation.service.OrderService;
 import com.example.familyeducation.service.ParentService;
 import com.example.familyeducation.service.TeacherService;
 import com.example.familyeducation.service.impl.UserDetailsServiceImpl;
+import com.example.familyeducation.utils.GetUserIdUtil;
 import com.example.familyeducation.utils.RedisCache;
 import com.example.familyeducation.utils.ValidationUtil;
 import org.springframework.beans.BeanUtils;
@@ -42,7 +43,7 @@ public class OrderController {
     private OrderService orderService;
 
     @Autowired
-    private ParentService parentService;
+    private GetUserIdUtil getUserIdUtil;
 
     @Autowired
     private TeacherService teacherService;
@@ -72,7 +73,7 @@ public class OrderController {
             Order order = new Order();
             BeanUtils.copyProperties(orderDTO,order);
             //2.2获取当前登录用户id对应的parent_id并将其赋值给parent_id
-            Long parentId = getParentId();
+            Long parentId = getUserIdUtil.getParentId();
             order.setParentId(parentId);
 
             order.setCreatedAt(LocalDateTime.now());
@@ -134,7 +135,7 @@ public class OrderController {
     @PreAuthorize("hasRole('PARENT')")
     public ResponseResult selectMyOrders(){
         //1.获取当前登录用户id并查询对应parent_id
-        Long parentId = getParentId();
+        Long parentId = getUserIdUtil.getParentId();
         //2.根据当前parentId查询对应订单数据
         QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
         orderQueryWrapper.eq("parent_id",parentId);
@@ -152,7 +153,7 @@ public class OrderController {
     public ResponseResult republishOrder(@RequestBody Order order){
         int updateOrderNumber = 0;
         //1.获取当前登录用户id
-        Long parentId = getParentId();
+        Long parentId = getUserIdUtil.getParentId();
         //2.判断修改的是否是自己的订单
         if(parentId!=order.getParentId()){
             //2.1修改的不是自己的订单，报错
@@ -214,11 +215,7 @@ public class OrderController {
             return ResponseResult.error("无法修改订单（试课）");
         }
         //2.获得当前登录教师id
-        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long loginUserId = loginUser.getUser().getId();
-        QueryWrapper<Teacher> teacherQueryWrapper = new QueryWrapper<>();
-        teacherQueryWrapper.eq("user_id",loginUserId);
-        Long teacherId = teacherService.selectTeacherId(teacherQueryWrapper);
+        Long teacherId = getUserIdUtil.getTeacherId();
         //3.修改order数据
         order.setStatus(ORDER_IN_TRIAL);
         order.setTeacherId(teacherId);
@@ -236,7 +233,7 @@ public class OrderController {
     @PreAuthorize("hasRole('PARENT')")
     public ResponseResult trialFailed(@RequestBody Order order){
         //1.获取当前登录家长id
-        Long parentId = getParentId();
+        Long parentId = getUserIdUtil.getParentId();
         //判断能否进行修改订单
         if(parentId!=order.getParentId()||!order.getStatus().equals(ORDER_IN_TRIAL)){
             return ResponseResult.error("无法修改订单信息");
@@ -259,7 +256,7 @@ public class OrderController {
     @PreAuthorize("hasRole('PARENT')")
     public ResponseResult trailPassed(@RequestBody Order order){
         //1.获取当前登录家长id
-        Long parentId = getParentId();
+        Long parentId = getUserIdUtil.getParentId();
         //判断能否进行修改订单
         if(parentId!=order.getParentId()||!order.getStatus().equals(ORDER_IN_TRIAL)){
             return ResponseResult.error("无法修改订单信息");
@@ -276,13 +273,6 @@ public class OrderController {
         }
     }
 
-    public Long getParentId(){
-        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long loginUserId = loginUser.getUser().getId();
-        QueryWrapper<Parent> parentQueryWrapper = new QueryWrapper<>();
-        parentQueryWrapper.eq("user_id",loginUserId);
-        Long parentId = parentService.selectParentId(parentQueryWrapper);
-        return parentId;
-    }
+
 
 }
