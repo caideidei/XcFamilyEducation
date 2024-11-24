@@ -205,4 +205,10 @@ public class AdminServiceImpl implements AdminService {
             return ResponseResult.success("删除管理员成功",null);
         }
     }
+
+    @Override
+    public Long selectAdminId(QueryWrapper<Admin> adminQueryWrapper) {
+        Long id = adminMapper.selectOne(adminQueryWrapper).getId();
+        return id;
+    }
 }

@@ -18,4 +18,8 @@ public interface TeacherService {
     ResponseResult updateTeacherStatus(TeacherDTO teacherDTO);
 
     Long selectTeacherId(QueryWrapper<Teacher> teacherQueryWrapper);
+
+    Teacher selectById(QueryWrapper<Teacher> teacherQueryWrapper);
+
+    int update(Teacher teacher);
 }

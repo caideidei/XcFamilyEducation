@@ -1,9 +1,11 @@
 package com.example.familyeducation.utils;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.familyeducation.entity.Admin;
 import com.example.familyeducation.entity.LoginUser;
 import com.example.familyeducation.entity.Parent;
 import com.example.familyeducation.entity.Teacher;
+import com.example.familyeducation.service.AdminService;
 import com.example.familyeducation.service.ParentService;
 import com.example.familyeducation.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,8 @@ public class GetUserIdUtil {
     @Autowired
     private TeacherService teacherService;
 
+    @Autowired
+    private AdminService adminService;
 
     public Long getParentId(){
         LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -40,6 +44,15 @@ public class GetUserIdUtil {
         teacherQueryWrapper.eq("user_id",loginUserId);
         Long teacherId = teacherService.selectTeacherId(teacherQueryWrapper);
         return teacherId;
+    }
+
+    public Long getAdminId(){
+        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long loginUserId = loginUser.getUser().getId();
+        QueryWrapper<Admin> adminQueryWrapper = new QueryWrapper<>();
+        adminQueryWrapper.eq("user_id",loginUserId);
+        Long adminId = adminService.selectAdminId(adminQueryWrapper);
+        return adminId;
     }
 
 }

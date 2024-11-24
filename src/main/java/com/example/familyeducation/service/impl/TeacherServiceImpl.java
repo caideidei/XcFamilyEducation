@@ -161,4 +161,14 @@ public class TeacherServiceImpl implements TeacherService {
         return teacherMapper.selectOne(teacherQueryWrapper).getId();
     }
 
+    @Override
+    public Teacher selectById(QueryWrapper<Teacher> teacherQueryWrapper) {
+        return teacherMapper.selectOne(teacherQueryWrapper);
+    }
+
+    @Override
+    public int update(Teacher teacher) {
+        return teacherMapper.updateById(teacher);
+    }
+
 }
