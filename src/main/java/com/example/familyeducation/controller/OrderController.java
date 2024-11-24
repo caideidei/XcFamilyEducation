@@ -129,16 +129,33 @@ public class OrderController {
     /**
      * @author 小菜
      * @date  2024/11/23
-     * @description 查询自己的订单信息
+     * @description 家长查询自己的订单信息
      **/
-    @GetMapping("/selectMyOrders")
+    @GetMapping("/parentSelectOrders")
     @PreAuthorize("hasRole('PARENT')")
-    public ResponseResult selectMyOrders(){
+    public ResponseResult parentSelectOrders(){
         //1.获取当前登录用户id并查询对应parent_id
         Long parentId = getUserIdUtil.getParentId();
         //2.根据当前parentId查询对应订单数据
         QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
         orderQueryWrapper.eq("parent_id",parentId);
+        List<Order> orderList = orderService.selectMyOrders(orderQueryWrapper);
+        return ResponseResult.success("成功查询到订单",orderList);
+    }
+
+    /**
+     * @author 小菜
+     * @date  2024/11/23
+     * @description 家长查询自己的订单信息
+     **/
+    @GetMapping("/teacherSelectOrders")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseResult teacherSelectOrders(){
+        //1.获取当前登录用户id并查询对应parent_id
+        Long teacherId = getUserIdUtil.getTeacherId();
+        //2.根据当前parentId查询对应订单数据
+        QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
+        orderQueryWrapper.eq("teacher_id",teacherId);
         List<Order> orderList = orderService.selectMyOrders(orderQueryWrapper);
         return ResponseResult.success("成功查询到订单",orderList);
     }

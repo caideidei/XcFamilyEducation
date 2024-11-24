@@ -16,14 +16,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-import static com.example.familyeducation.constants.HomeworkConstants.HOMEWORK_INCOMPLETED;
+import static com.example.familyeducation.constants.HomeworkConstants.*;
 
 /**
  * @ClassDescription:
@@ -46,7 +44,7 @@ public class HomeworkController {
     @Autowired
     private GetUserIdUtil getUserIdUtil;
 
-    //TODO 封装获取教师id方法和家长id到一个新类中
+    //TODO 作业超时
 
     @PostMapping("/publish")
     @PreAuthorize("hasRole('TEACHER')")
@@ -83,6 +81,42 @@ public class HomeworkController {
             return ResponseResult.error("发布作业失败");
         }else{
             return ResponseResult.success("发布作业成功",null);
+        }
+    }
+
+    @GetMapping("/selectMyHomeworks")
+    @PreAuthorize("hasAnyRole('TEACHER','PARENT')")
+    public ResponseResult selectMyHomeworks(@RequestParam Long orderId){
+        //之前已经查询到自己的订单了，就不用判断这个作业相关订单是否与自己有关了
+        //1.直接返回作业信息
+        QueryWrapper<Homework> homeworkQueryWrapper = new QueryWrapper<>();
+        homeworkQueryWrapper.eq("order_id",orderId);
+        List<Homework> homeworkList = homeworkService.selectMyHomeworks(homeworkQueryWrapper);
+        return ResponseResult.success("成功查询作业信息:",homeworkList);
+    }
+
+    @PutMapping("/commit")
+    @PreAuthorize("hasRole('PARENT')")
+    public ResponseResult commitHomework(@RequestBody Homework homework){
+        //修改作业状态
+        homework.setStatus(HOMEWORK_COMPLETED);
+        int updateHomeworkNumber = homeworkService.updateHomework(homework);
+        if(updateHomeworkNumber==0){
+            return ResponseResult.error("更新作业失败");
+        }else{
+            return ResponseResult.success("更新作业成功",null);
+        }
+    }
+
+    @PutMapping("/review")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseResult reviewHomework(@RequestBody Homework homework){
+        homework.setStatus(HOMEWORK_EVALUATED);
+        int updateHomeworkNumber = homeworkService.updateHomework(homework);
+        if(updateHomeworkNumber==0){
+            return ResponseResult.error("更新作业失败");
+        }else{
+            return ResponseResult.success("更新作业成功",null);
         }
     }
 

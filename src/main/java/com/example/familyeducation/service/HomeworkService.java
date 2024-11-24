@@ -1,6 +1,9 @@
 package com.example.familyeducation.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.familyeducation.entity.Homework;
+
+import java.util.List;
 
 /**
  * @ClassDescription:
@@ -9,4 +12,8 @@ import com.example.familyeducation.entity.Homework;
  **/
 public interface HomeworkService {
     int insert(Homework homework);
+
+    List<Homework> selectMyHomeworks(QueryWrapper<Homework> homeworkQueryWrapper);
+
+    int updateHomework(Homework homework);
 }
