@@ -9,6 +9,7 @@ import com.example.familyeducation.service.TeacherExamineService;
 import com.example.familyeducation.service.TeacherService;
 import com.example.familyeducation.utils.GetUserIdUtil;
 import com.example.familyeducation.utils.ValidationUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +28,7 @@ import static com.example.familyeducation.constants.TeacherExamineConstants.*;
  **/
 @RestController
 @RequestMapping("/examine")
+@Tag(name="教师审核接口",description = "管理教师审核信息")
 public class TeacherExamineController {
 
     @Autowired

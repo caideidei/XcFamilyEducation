@@ -3,6 +3,7 @@ package com.example.familyeducation.controller;
 import com.example.familyeducation.dto.TeacherDTO;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.TeacherService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
  **/
 @RestController
 @RequestMapping("/teacher")
+@Tag(name="教师接口",description = "管理教师相关信息")
 public class TeacherController {
 
     @Autowired

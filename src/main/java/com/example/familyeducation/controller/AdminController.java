@@ -4,6 +4,7 @@ import com.example.familyeducation.dto.UserDTO;
 import com.example.familyeducation.entity.User;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.AdminService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
  **/
 @RestController
 @RequestMapping("/admin")
+@Tag(name="管理员接口",description = "管理管理员信息")
 public class AdminController {
     @Autowired
     private AdminService adminService;

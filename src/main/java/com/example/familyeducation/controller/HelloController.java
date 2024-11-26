@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@Tag(name = "test", description = "test")
+@Tag(name = "测试接口", description = "管理测试信息")
 @RequestMapping("/test")
 public class HelloController {
     //测试权限功能

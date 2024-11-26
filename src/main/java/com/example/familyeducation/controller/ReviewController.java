@@ -7,6 +7,7 @@ import com.example.familyeducation.entity.Review;
 import com.example.familyeducation.mapper.ParentMapper;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.ReviewService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +24,7 @@ import java.util.List;
  **/
 @RestController
 @RequestMapping("/review")
+@Tag(name="评论接口",description ="管理评论信息" )
 public class ReviewController {
     @Autowired
     private ReviewService reviewService;

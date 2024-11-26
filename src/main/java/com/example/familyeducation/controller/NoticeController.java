@@ -4,6 +4,7 @@ import com.example.familyeducation.dto.NoticeDTO;
 import com.example.familyeducation.entity.Notice;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.NoticeService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
  **/
 @RestController
 @RequestMapping("/notice")
+@Tag(name="公告接口",description = "管理公告信息")
 public class NoticeController {
 
     @Autowired

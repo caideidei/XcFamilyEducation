@@ -3,6 +3,7 @@ package com.example.familyeducation.controller;
 import com.example.familyeducation.entity.Feedback;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.FeedbackService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
  **/
 @RestController
 @RequestMapping("/feedback")
+@Tag(name="反馈接口",description = "管理用户对系统的反馈信息")
 public class FeedbcakController {
     @Autowired
     private FeedbackService feedbcakService;

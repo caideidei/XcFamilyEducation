@@ -12,6 +12,7 @@ import com.example.familyeducation.service.OrderService;
 import com.example.familyeducation.service.TeacherService;
 import com.example.familyeducation.utils.GetUserIdUtil;
 import com.example.familyeducation.utils.ValidationUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +31,7 @@ import static com.example.familyeducation.constants.HomeworkConstants.*;
  **/
 @RestController
 @RequestMapping("/homework")
+@Tag(name="作业接口",description ="管理作业信息" )
 public class HomeworkController {
 
     @Autowired
@@ -37,9 +39,6 @@ public class HomeworkController {
 
     @Autowired
     private HomeworkService homeworkService;
-
-    @Autowired
-    private TeacherService teacherService;
 
     @Autowired
     private GetUserIdUtil getUserIdUtil;

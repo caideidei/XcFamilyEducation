@@ -12,6 +12,7 @@ import com.example.familyeducation.service.impl.UserDetailsServiceImpl;
 import com.example.familyeducation.utils.GetUserIdUtil;
 import com.example.familyeducation.utils.RedisCache;
 import com.example.familyeducation.utils.ValidationUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,15 +39,13 @@ import static com.example.familyeducation.constants.RedisConstants.ORDER_MESSAGE
  **/
 @RestController
 @RequestMapping("/order")
+@Tag(name="订单接口",description = "管理订单信息")
 public class OrderController {
     @Autowired
     private OrderService orderService;
 
     @Autowired
     private GetUserIdUtil getUserIdUtil;
-
-    @Autowired
-    private TeacherService teacherService;
 
     @Autowired
     private RedisCache redisCache;
