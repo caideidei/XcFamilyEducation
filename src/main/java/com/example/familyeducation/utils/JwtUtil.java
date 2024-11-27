@@ -31,8 +31,8 @@ public class JwtUtil {
      * @param subject token中要存放的数据（json格式）
      * @return
      */
-    public static String createJWT(String subject) {
-        JwtBuilder builder = getJwtBuilder(subject, null, getUUID());// 设置过期时间
+    public static String createJWT(String subject,String role) {
+        JwtBuilder builder = getJwtBuilder(subject, role,null, getUUID());// 设置过期时间
         return builder.compact();
     }
 
@@ -42,12 +42,12 @@ public class JwtUtil {
      * @param ttlMillis token超时时间
      * @return
      */
-    public static String createJWT(String subject, Long ttlMillis) {
-        JwtBuilder builder = getJwtBuilder(subject, ttlMillis, getUUID());// 设置过期时间
+    public static String createJWT(String subject,String role, Long ttlMillis) {
+        JwtBuilder builder = getJwtBuilder(subject, role,ttlMillis, getUUID());// 设置过期时间
         return builder.compact();
     }
 
-    private static JwtBuilder getJwtBuilder(String subject, Long ttlMillis, String uuid) {
+    private static JwtBuilder getJwtBuilder(String subject,String role, Long ttlMillis, String uuid) {
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
         SecretKey secretKey = generalKey();
         long nowMillis = System.currentTimeMillis();
@@ -59,6 +59,7 @@ public class JwtUtil {
         Date expDate = new Date(expMillis);
         return Jwts.builder()
                 .setId(uuid)              //唯一的ID
+                .claim("role",role)
                 .setSubject(subject)   // 主题  可以是JSON数据
                 .setIssuer("xc")     // 签发者
                 .setIssuedAt(now)      // 签发时间
@@ -66,17 +67,7 @@ public class JwtUtil {
                 .setExpiration(expDate);
     }
 
-    /**
-     * 创建token
-     * @param id
-     * @param subject
-     * @param ttlMillis
-     * @return
-     */
-    public static String createJWT(String id, String subject, Long ttlMillis) {
-        JwtBuilder builder = getJwtBuilder(subject, ttlMillis, id);// 设置过期时间
-        return builder.compact();
-    }
+
 
     /**
      * 生成加密后的秘钥 secretKey
@@ -103,10 +94,6 @@ public class JwtUtil {
                 .getBody();
     }
 
-    public static void main(String[] args) throws Exception {
-        String token = "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlYzUyZjVlZDlhYzE0MzRmOGEyOTE3ODU5YWZhNDI1MSIsInN1YiI6IjYiLCJpc3MiOiJ4YyIsImlhdCI6MTczMTgyNTIzNSwiZXhwIjoxNzMxODI4ODM1fQ.dWNZqG8mpjrl4fNTrzH0thV6Hlnurh2vQfmxq6tMKho";
-        Claims claims = parseJWT(token);
-        System.out.println(claims);
-    }
+
 
 }

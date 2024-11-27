@@ -1,6 +1,7 @@
 package com.example.familyeducation.utils;
 
 import com.example.familyeducation.dto.OrderDTO;
+import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -30,4 +31,13 @@ public class TestUtils {
         System.out.println("当前对象是否全部元素非空:"+flag1);
 
     }
+
+
+    @Test
+    public void JwtTest() throws Exception {
+        String token = "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJkNjlmOTUyMDVkMGY0ZWY3ODI4MjI4MGEwZjM1ZWYyMSIsInJvbGUiOiJ0ZWFjaGVyIiwic3ViIjoiMTMiLCJpc3MiOiJ4YyIsImlhdCI6MTczMjY3NjE0OCwiZXhwIjoxNzMyNjc5NzQ4fQ.N7rOagExzq871HXTPRptc9vHHR0I5olGCHwEq5thx-0";
+        Claims claims = JwtUtil.parseJWT(token);
+        System.out.println(claims);
+    }
+
 }

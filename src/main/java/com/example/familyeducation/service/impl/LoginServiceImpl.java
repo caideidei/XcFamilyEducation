@@ -72,12 +72,13 @@ public class LoginServiceImpl implements LoginService {
         //4.认证通过则生成token
         LoginUser loginUser= (LoginUser) authenticate.getPrincipal();
         String userId = loginUser.getUser().getId().toString();
-        String token = JwtUtil.createJWT(userId);//将userId进行token生成
+        String role = loginUser.getUser().getRole();
+        String token = JwtUtil.createJWT(userId,role);//将userId进行token生成
         //5.封装数据到Redis中
         redisCache.setCacheObject(LOGIN_USER_KEY+userId,loginUser,LOGIN_USER_TTL, TimeUnit.MINUTES);
         //6.最后将token返回前端
         HashMap<String, String> map = new HashMap<>();
-        map.put("token:",token);
+        map.put("token",token);
         return new ResponseResult(200,"登录成功",map);
     }
 
