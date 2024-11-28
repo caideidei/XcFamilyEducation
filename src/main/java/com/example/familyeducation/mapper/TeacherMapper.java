@@ -9,7 +9,9 @@ import java.util.List;
 
 public interface TeacherMapper extends BaseMapper<Teacher> {
 
-    @Select("select username,phone_number,subjects,qualification,intro,email,picture,role,status\n" +
-            "from teacher t join user u on t.user_id = u.id;")
+    @Select("select t.id,user_id,username,real_name,phone_number,\n" +
+            "       email,role,status,created_at,picture,qualification,\n" +
+            "      intro,official_teacher,subjects\n" +
+            "from user u join teacher t on u.id = t.user_id;")
     List<TeacherVO> selectAllTeachers();
 }

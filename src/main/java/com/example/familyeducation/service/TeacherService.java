@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.familyeducation.dto.TeacherDTO;
 import com.example.familyeducation.entity.Teacher;
 import com.example.familyeducation.response.ResponseResult;
+import com.example.familyeducation.vo.TeacherVO;
+
+import java.util.List;
 
 /**
  * @ClassDescription:
@@ -11,7 +14,7 @@ import com.example.familyeducation.response.ResponseResult;
  * @Create:2024/11/18 20:06
  **/
 public interface TeacherService {
-    ResponseResult selectAllTeachers();
+    List<TeacherVO> selectAllTeachers();
 
     ResponseResult updateTeacher(TeacherDTO teacherDTO);
 

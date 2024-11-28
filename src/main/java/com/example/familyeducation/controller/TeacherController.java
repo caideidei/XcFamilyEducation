@@ -3,10 +3,14 @@ package com.example.familyeducation.controller;
 import com.example.familyeducation.dto.TeacherDTO;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.TeacherService;
+import com.example.familyeducation.vo.AdminVO;
+import com.example.familyeducation.vo.TeacherVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @ClassDescription:
@@ -24,7 +28,12 @@ public class TeacherController {
     @GetMapping("/selectAllTeachers")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
     public ResponseResult selectAllTeachers(){
-        return teacherService.selectAllTeachers();
+        List<TeacherVO> teacherVOList = teacherService.selectAllTeachers();
+        if(teacherVOList.isEmpty()){
+            return ResponseResult.success("查询数据为空",null);
+        }else{
+            return ResponseResult.success("查询数据成功",teacherVOList);
+        }
     }
 
     @PutMapping("/updateTeacher")

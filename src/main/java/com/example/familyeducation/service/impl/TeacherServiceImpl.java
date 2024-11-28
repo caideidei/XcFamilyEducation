@@ -40,11 +40,11 @@ public class TeacherServiceImpl implements TeacherService {
      * @description 查询所有教师的部分信息（从user和teacher中）
      **/
     @Override
-    public ResponseResult selectAllTeachers() {
+    public List<TeacherVO> selectAllTeachers() {
         //1.查询两张表中的数据并封装为TeacherVO
         List<TeacherVO> teacherVOS = teacherMapper.selectAllTeachers();
         //2.返回数据
-        return ResponseResult.success("查询教师数据成功",teacherVOS);
+        return teacherVOS;
     }
 
     /**
