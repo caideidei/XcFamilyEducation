@@ -3,10 +3,13 @@ package com.example.familyeducation.controller;
 import com.example.familyeducation.dto.ParentDTO;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.ParentService;
+import com.example.familyeducation.vo.ParentVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @ClassDescription:
@@ -24,7 +27,12 @@ public class ParentController {
     @GetMapping("/selectAllParents")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseResult selectAllParents(){
-        return parentService.selectAllParents();
+        List<ParentVO> parentVOList = parentService.selectAllParents();
+        if(parentVOList.isEmpty()){
+            return ResponseResult.success("查询数据为空",null);
+        }else{
+            return ResponseResult.success("查询数据成功",parentVOList);
+        }
     }
 
     @PutMapping("/updateParent")

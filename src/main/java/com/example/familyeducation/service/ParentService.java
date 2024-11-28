@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.familyeducation.dto.ParentDTO;
 import com.example.familyeducation.entity.Parent;
 import com.example.familyeducation.response.ResponseResult;
+import com.example.familyeducation.vo.ParentVO;
+
+import java.util.List;
 
 /**
  * @ClassDescription:
@@ -11,7 +14,7 @@ import com.example.familyeducation.response.ResponseResult;
  * @Create:2024/11/19 14:42
  **/
 public interface ParentService {
-    ResponseResult selectAllParents();
+    List<ParentVO> selectAllParents();
 
     ResponseResult updateParent(ParentDTO parentDTO);
 
