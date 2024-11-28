@@ -4,10 +4,13 @@ import com.example.familyeducation.dto.UserDTO;
 import com.example.familyeducation.entity.User;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.AdminService;
+import com.example.familyeducation.vo.AdminVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @ClassDescription:
@@ -24,7 +27,12 @@ public class AdminController {
     @GetMapping("/selectAllAdmins")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseResult selectAllAdmins(){
-        return adminService.selectAllAdmins();
+        List<AdminVO> adminVOList = adminService.selectAllAdmins();
+        if(adminVOList.isEmpty()){
+            return ResponseResult.success("查询数据为空",null);
+        }else{
+            return ResponseResult.success("查询数据成功",adminVOList);
+        }
     }
 
     @PostMapping("/insertAdmin")

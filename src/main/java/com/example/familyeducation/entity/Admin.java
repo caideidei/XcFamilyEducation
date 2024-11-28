@@ -22,6 +22,9 @@ public class Admin implements Serializable {
     @Schema(name = "userId", description = "用户ID，外键，指向 users 表的 id")
     private Long userId;
 
+    @Schema(name = "realName", description = "管理员真实名字")
+    private String realName;
+
     @Schema(name = "lastLoginTime", description = "最近登录时间")
     private LocalDateTime lastLoginTime;
 

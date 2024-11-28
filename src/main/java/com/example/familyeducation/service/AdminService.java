@@ -5,6 +5,9 @@ import com.example.familyeducation.dto.UserDTO;
 import com.example.familyeducation.entity.Admin;
 import com.example.familyeducation.entity.User;
 import com.example.familyeducation.response.ResponseResult;
+import com.example.familyeducation.vo.AdminVO;
+
+import java.util.List;
 
 /**
  * @ClassDescription:
@@ -12,7 +15,7 @@ import com.example.familyeducation.response.ResponseResult;
  * @Create:2024/11/11 16:23
  **/
 public interface AdminService {
-    ResponseResult selectAllAdmins();
+    List<AdminVO> selectAllAdmins();
 
     ResponseResult insertAdmin(UserDTO userDTO);
 

@@ -11,6 +11,7 @@ import com.example.familyeducation.mapper.UserMapper;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.AdminService;
 import com.example.familyeducation.utils.RedisCache;
+import com.example.familyeducation.vo.AdminVO;
 import com.example.familyeducation.vo.UserVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,25 +53,8 @@ public class AdminServiceImpl implements AdminService {
      * @description 查询所有管理员信息
      **/
     @Override
-    public ResponseResult selectAllAdmins() {
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("role","admin");
-        List<User> admins = userMapper.selectList(queryWrapper);
-
-        //将查询到的数据封装为UserVO
-        List<UserVO> userVOS = admins.stream().map(user -> {
-            UserVO userVO = new UserVO();
-            userVO.setId(user.getId());
-            userVO.setUsername(user.getUsername());
-            userVO.setPhoneNumber(user.getPhoneNumber());
-            userVO.setRole(user.getRole());
-            userVO.setStatus(user.getStatus());
-            userVO.setCreatedAt(user.getCreatedAt());
-            userVO.setEmail(user.getEmail());
-            userVO.setPicture(user.getPicture());
-            return userVO;
-        }).collect(Collectors.toList());
-        return ResponseResult.success("查询成功",userVOS);
+    public List<AdminVO> selectAllAdmins() {
+        return adminMapper.selectAllAdmins();
     }
 
     /**
