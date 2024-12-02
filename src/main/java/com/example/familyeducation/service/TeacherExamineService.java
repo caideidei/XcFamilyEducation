@@ -15,5 +15,7 @@ public interface TeacherExamineService {
 
     int update(TeacherExamine teacherExamine);
 
-    List<TeacherExamine> select(QueryWrapper<TeacherExamine> teacherExamineQueryWrapper);
+    List<TeacherExamine> selectById(Long teacherId);
+
+    List<TeacherExamine> selectAll();
 }

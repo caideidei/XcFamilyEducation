@@ -211,7 +211,7 @@ public class OrderController {
         orderList= orderService.selectAllOrders(orderQueryWrapper);
         //2.1数据库中不存在对应数据，返回错误信息
         if(orderList==null||orderList.isEmpty()){
-            return ResponseResult.error("没有订单信息");
+            return ResponseResult.success("查询数据为空",null);
         }
         //3.数据库存在数据，将数据存到Redis中
         for (Order order : orderList) {

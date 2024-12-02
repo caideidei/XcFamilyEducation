@@ -4,6 +4,8 @@ import com.example.familyeducation.dto.NoticeDTO;
 import com.example.familyeducation.entity.Notice;
 import com.example.familyeducation.response.ResponseResult;
 
+import java.util.List;
+
 /**
  * @ClassDescription:
  * @Author:小菜
@@ -11,7 +13,7 @@ import com.example.familyeducation.response.ResponseResult;
  **/
 
 public interface NoticeService {
-    ResponseResult selectAllNotices();
+    List<Notice> selectAllNotices();
 
     ResponseResult insertNotice(NoticeDTO noticeDTO);
 

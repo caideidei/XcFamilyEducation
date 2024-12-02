@@ -27,7 +27,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public List<Homework> selectMyHomeworks(QueryWrapper<Homework> homeworkQueryWrapper) {
+    public List<Homework> selectHomeworks(QueryWrapper<Homework> homeworkQueryWrapper) {
         List<Homework> homework = homeworkMapper.selectList(homeworkQueryWrapper);
         return homework;
     }

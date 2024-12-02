@@ -51,11 +51,8 @@ public class FeedbcakServiceImpl implements FeedbackService{
      * @description 查询所有未被banned用户的反馈信息
      **/
     @Override
-    public ResponseResult selectAllFeedBacks() {
-        //查询feedback的信息与user表中的相关用户信息
-        List<FeedbackVO> feedbackVOS = feedbackMapper.selectAllFeedbacks();
-        //返回数据
-        return ResponseResult.success("查询成功",feedbackVOS);
+    public List<FeedbackVO> selectAllFeedBacks() {
+        return feedbackMapper.selectAllFeedbacks();
     }
 
     @Override

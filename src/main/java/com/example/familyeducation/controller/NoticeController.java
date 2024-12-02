@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.annotation.Repeatable;
+import java.util.List;
+
 /**
  * @ClassDescription:
  * @Author:小菜
@@ -25,7 +28,12 @@ public class NoticeController {
     @GetMapping("/selectAllNotices")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
     public ResponseResult selectAllAnnouncements(){
-        return noticeService.selectAllNotices();
+        List<Notice> noticeList = noticeService.selectAllNotices();
+        if(noticeList.isEmpty()){
+            return ResponseResult.success("查询数据为空",null);
+        }else{
+            return ResponseResult.success("查询成功",noticeList);
+        }
     }
 
 

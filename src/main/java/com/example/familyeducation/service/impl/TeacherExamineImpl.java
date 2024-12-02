@@ -30,7 +30,15 @@ public class TeacherExamineImpl implements TeacherExamineService {
     }
 
     @Override
-    public List<TeacherExamine> select(QueryWrapper<TeacherExamine> teacherExamineQueryWrapper) {
-        return teacherExamineMapper.selectList(teacherExamineQueryWrapper);
+    public List<TeacherExamine> selectById(Long teacherId) {
+        QueryWrapper<TeacherExamine> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("teacher_id",teacherId);
+        return teacherExamineMapper.selectList(queryWrapper);
     }
+
+    @Override
+    public List<TeacherExamine> selectAll() {
+        return teacherExamineMapper.selectList(null);
+    }
+
 }

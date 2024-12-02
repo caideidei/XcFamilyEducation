@@ -7,6 +7,7 @@ import com.example.familyeducation.entity.Review;
 import com.example.familyeducation.mapper.ParentMapper;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.ReviewService;
+import com.example.familyeducation.utils.GetUserIdUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +33,15 @@ public class ReviewController {
     @Autowired
     private ParentMapper parentMapper;
 
+    @Autowired
+    private GetUserIdUtil getUserIdUtil;
+
     @GetMapping("/selectAllReviews")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
     public ResponseResult selectAllReviews(){
         List<Review> reviewList = reviewService.list();
         if(reviewList==null){
-            return ResponseResult.error("查询结果为空");
+            return ResponseResult.success("查询结果为空",null);
         }else{
             return ResponseResult.success("查询成功",reviewList);
         }
@@ -46,11 +50,7 @@ public class ReviewController {
     @PostMapping("/insertReview")
     @PreAuthorize("hasRole('PARENT')")
     public ResponseResult insertReview(@RequestBody Review review){
-        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long loginUserId = loginUser.getUser().getId();
-        QueryWrapper<Parent> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id",loginUserId);
-        Long parentId = parentMapper.selectOne(queryWrapper).getId();
+        Long parentId = getUserIdUtil.getParentId();
         review.setParentId(parentId);
         review.setCreatedAt(LocalDateTime.now());
         boolean insertReviewNumber = reviewService.save(review);
@@ -67,13 +67,7 @@ public class ReviewController {
         boolean updateReview = false;
         //1.判断传入parent_id与当前登录id是否相同
         Long parentId = review.getParentId();
-
-        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long loginUserId = loginUser.getUser().getId();
-        QueryWrapper<Parent> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id",loginUserId);
-        Long loginParentId = parentMapper.selectOne(queryWrapper).getId();
-
+        Long loginParentId = getUserIdUtil.getParentId();
         if(parentId!=loginParentId){
             return ResponseResult.error("无法更新别人的评论");
         }else{
@@ -93,13 +87,7 @@ public class ReviewController {
         boolean deleteReview = false;
         //1.判断传入parent_id与当前登录id是否相同
         Long parentId = review.getParentId();
-
-        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long loginUserId = loginUser.getUser().getId();
-        QueryWrapper<Parent> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id",loginUserId);
-        Long loginParentId = parentMapper.selectOne(queryWrapper).getId();
-
+        Long loginParentId = getUserIdUtil.getParentId();
         if(parentId!=loginParentId){
             return ResponseResult.error("无法删除别人的评论");
         }else{

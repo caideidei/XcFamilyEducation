@@ -27,9 +27,8 @@ public class NoticeServiceImpl implements NoticeService {
     private NoticeMapper noticeMapper;
 
     @Override
-    public ResponseResult selectAllNotices() {
-        List<Notice> mapperList = noticeMapper.selectList(null);
-        return ResponseResult.success("查询成功",mapperList);
+    public List<Notice> selectAllNotices() {
+        return noticeMapper.selectList(null);
     }
 
     @Override

@@ -2,6 +2,9 @@ package com.example.familyeducation.service;
 
 import com.example.familyeducation.entity.Feedback;
 import com.example.familyeducation.response.ResponseResult;
+import com.example.familyeducation.vo.FeedbackVO;
+
+import java.util.List;
 
 /**
  * @ClassDescription:
@@ -11,7 +14,7 @@ import com.example.familyeducation.response.ResponseResult;
 public interface FeedbackService {
     ResponseResult insertFeedback(Feedback feedback);
 
-    ResponseResult selectAllFeedBacks();
+    List<FeedbackVO> selectAllFeedBacks();
 
     ResponseResult updateFeedback(Feedback feedback);
 

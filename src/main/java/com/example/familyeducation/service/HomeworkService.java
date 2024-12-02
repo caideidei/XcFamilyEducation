@@ -13,7 +13,7 @@ import java.util.List;
 public interface HomeworkService {
     int insert(Homework homework);
 
-    List<Homework> selectMyHomeworks(QueryWrapper<Homework> homeworkQueryWrapper);
+    List<Homework> selectHomeworks(QueryWrapper<Homework> homeworkQueryWrapper);
 
     int updateHomework(Homework homework);
 }

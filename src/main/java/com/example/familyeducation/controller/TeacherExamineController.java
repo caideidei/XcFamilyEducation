@@ -165,19 +165,19 @@ public class TeacherExamineController {
     public ResponseResult selectMyExamines(){
         //1.获取当前登录教师id
         Long teacherId = getUserIdUtil.getTeacherId();
-        //2.根据教师id查询对应的审核信息
-        QueryWrapper<TeacherExamine> teacherExamineQueryWrapper = new QueryWrapper<>();
-        teacherExamineQueryWrapper.eq("teacher_id",teacherId);
-        List<TeacherExamine> teacherExamineList= teacherExamineService.select(teacherExamineQueryWrapper);
+        List<TeacherExamine> teacherExamineList = teacherExamineService.selectById(teacherId);
         return ResponseResult.success("成功查询审核信息:",teacherExamineList);
     }
 
     @GetMapping("/selectAllExamines")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseResult selectAllExamines(){
-        QueryWrapper<TeacherExamine> teacherExamineQueryWrapper = new QueryWrapper<>();
-        List<TeacherExamine> teacherExamineList = teacherExamineService.select(teacherExamineQueryWrapper);
-        return ResponseResult.success("成功查询审核信息:",teacherExamineList);
+        List<TeacherExamine> teacherExamineList = teacherExamineService.selectAll();
+        if(teacherExamineList.isEmpty()){
+            return ResponseResult.success("查询数据为空",null);
+        }else{
+            return ResponseResult.success("查询成功",teacherExamineList);
+        }
     }
 
 }

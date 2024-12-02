@@ -31,7 +31,7 @@ public class AdminController {
         if(adminVOList.isEmpty()){
             return ResponseResult.success("查询数据为空",null);
         }else{
-            return ResponseResult.success("查询数据成功",adminVOList);
+            return ResponseResult.success("查询成功",adminVOList);
         }
     }
 

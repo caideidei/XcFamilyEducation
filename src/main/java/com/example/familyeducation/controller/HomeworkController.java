@@ -90,8 +90,19 @@ public class HomeworkController {
         //1.直接返回作业信息
         QueryWrapper<Homework> homeworkQueryWrapper = new QueryWrapper<>();
         homeworkQueryWrapper.eq("order_id",orderId);
-        List<Homework> homeworkList = homeworkService.selectMyHomeworks(homeworkQueryWrapper);
+        List<Homework> homeworkList = homeworkService.selectHomeworks(homeworkQueryWrapper);
         return ResponseResult.success("成功查询作业信息:",homeworkList);
+    }
+
+    @GetMapping("/selectAllHomeworks")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseResult selectAllHomeworks(){
+        List<Homework> homeworkList = homeworkService.selectHomeworks(null);
+        if(homeworkList.isEmpty()){
+            return ResponseResult.success("查询数据为空",null);
+        }else{
+            return ResponseResult.success("查询成功",homeworkList);
+        }
     }
 
     @PutMapping("/commit")
