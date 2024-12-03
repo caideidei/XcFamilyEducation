@@ -1,22 +1,37 @@
 package com.example.familyeducation.controller;
 
 import com.example.familyeducation.entity.LoginUser;
-import com.example.familyeducation.entity.User;
 import com.example.familyeducation.response.ResponseResult;
+import com.example.familyeducation.utils.OssUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @Tag(name = "测试接口", description = "管理测试信息")
 @RequestMapping("/test")
-public class HelloController {
+public class TestController {
+
+    @Autowired
+    private OssUtil ossUtil;
+
+    @PostMapping("/oss/upload")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
+    public String upload(MultipartFile file){
+        return ossUtil.uploadMultipartFile(file);
+    }
+
+
     //测试权限功能
     @GetMapping("/t")
     public String t1(){
