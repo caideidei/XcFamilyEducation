@@ -35,9 +35,26 @@ public class TestUtils {
 
     @Test
     public void JwtTest() throws Exception {
-        String token = "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJkNjlmOTUyMDVkMGY0ZWY3ODI4MjI4MGEwZjM1ZWYyMSIsInJvbGUiOiJ0ZWFjaGVyIiwic3ViIjoiMTMiLCJpc3MiOiJ4YyIsImlhdCI6MTczMjY3NjE0OCwiZXhwIjoxNzMyNjc5NzQ4fQ.N7rOagExzq871HXTPRptc9vHHR0I5olGCHwEq5thx-0";
+        String token = "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIxMmQ2MTBiNWEzNjY0YzAyYmI4YzhjOTA0MTFhMzU3NiIsInJvbGUiOiJ0ZWFjaGVyIiwic3ViIjoiMTMiLCJpc3MiOiJ4YyIsImlhdCI6MTczMzIxMzI3NiwiZXhwIjoxNzMzMjE2ODc2fQ.GUXvQsxfdi7W4DeExbqPojqzbMxZuP5Hs5LuxllUq7g";
         Claims claims = JwtUtil.parseJWT(token);
-        System.out.println(claims);
+//        System.out.println(claims);
+
+        // // 假设你已经得到了JWT字符串token
+        //        String token = "your_jwt_token_here";
+        //
+        //        // 解析Token
+        //        Claims claims = JwtUtil.parseJWT(token);
+        //
+        //        // 获取sub（即subject）
+        //        String subject = claims.getSubject();
+        //        System.out.println("Subject (sub): " + subject);
+        //
+        //        // 如果你需要获取其他信息，比如role，可以这么做：
+        //        String role = (String) claims.get("role"); // role是你在生成Token时通过claim设置的字段
+        //        System.out.println("Role: " + role);
+        String subject = claims.getSubject();
+        System.out.println(subject);
+
     }
 
 }
