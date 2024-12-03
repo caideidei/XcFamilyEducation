@@ -2,8 +2,9 @@ package com.example.familyeducation.controller;
 
 import com.example.familyeducation.entity.LoginUser;
 import com.example.familyeducation.response.ResponseResult;
-import com.example.familyeducation.utils.OssUtil;
+import com.example.familyeducation.utils.AliOssUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -14,22 +15,41 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Tag(name = "测试接口", description = "管理测试信息")
 @RequestMapping("/test")
+@Slf4j
 public class TestController {
 
     @Autowired
-    private OssUtil ossUtil;
+    private AliOssUtil aliOssUtil;
 
     @PostMapping("/oss/upload")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
-    public String upload(MultipartFile file){
-        return ossUtil.uploadMultipartFile(file);
+    public ResponseResult upload(MultipartFile file){
+        log.info("文件上传：{}",file);
+
+        try {
+            //原始文件名
+            String originalFilename = file.getOriginalFilename();
+            //截取原始文件名的后缀   dfdfdf.png
+            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            //构造新文件名称（ 防止存在阿里云的文件名重复，会被新的覆盖）
+            String objectName = UUID.randomUUID().toString() + extension;
+            //文件的请求路径
+            String filePath = aliOssUtil.upload(file.getBytes(), objectName);
+            return ResponseResult.success("文件上传成功，路径如下：",filePath);
+        } catch (IOException e) {
+            log.error("文件上传失败：{}", e);
+        }
+        return ResponseResult.error("文件上传失败");
     }
+
 
 
     //测试权限功能
