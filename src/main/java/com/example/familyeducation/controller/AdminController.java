@@ -155,7 +155,7 @@ public class AdminController {
 
     @DeleteMapping("/deleteAdmin")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseResult deleteAdmin(@RequestParam String userId){
+    public ResponseResult deleteAdmin(@RequestParam Long userId){
         int deleteAdminNumber = 0;//判断删除数量
         //1.根据传入userId判断当前用户状态
         String status = userService.selectUserStatusByUserId(userId);

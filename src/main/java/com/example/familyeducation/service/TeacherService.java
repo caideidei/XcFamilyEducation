@@ -16,8 +16,6 @@ import java.util.List;
 public interface TeacherService {
     List<TeacherVO> selectAllTeachers();
 
-    ResponseResult updateTeacherStatus(TeacherDTO teacherDTO);
-
     Long selectTeacherId(QueryWrapper<Teacher> teacherQueryWrapper);
 
     Teacher selectById(QueryWrapper<Teacher> teacherQueryWrapper);

@@ -23,7 +23,7 @@ public interface UserService {
 
     int updateById(User user);
 
-    String selectUserStatusByUserId(String userId);
+    String selectUserStatusByUserId(Long userId);
 
-    int  deleteUserById(String userId);
+    int  deleteUserById(Long userId);
 }

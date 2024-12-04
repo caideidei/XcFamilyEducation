@@ -8,6 +8,7 @@ import com.example.familyeducation.entity.User;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.TeacherService;
 import com.example.familyeducation.service.UserService;
+import com.example.familyeducation.utils.RedisCache;
 import com.example.familyeducation.vo.TeacherVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.BeanUtils;
@@ -20,6 +21,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.example.familyeducation.constants.RedisConstants.LOGIN_USER_KEY;
 
 /**
  * @ClassDescription:
@@ -38,6 +41,9 @@ public class TeacherController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RedisCache redisCache;
 
     @GetMapping("/selectAllTeachers")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
@@ -99,9 +105,52 @@ public class TeacherController {
         }
     }
 
+    @DeleteMapping("/deleteTeacher")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseResult deleteTeacher(@RequestParam Long userId){
+        int deleteAdminNumber = 0;//判断删除数量
+        //1.根据传入userId判断当前用户状态
+        String status = userService.selectUserStatusByUserId(userId);
+        if(!status.equals("banned")){
+            //1.1不为banned时无法删除，报错
+            return ResponseResult.error("无法删除该教师");
+        }else{
+            //2.为banned时可以删除，删除数据库中的信息
+            //因为admin表关联user表的外键，同时设置了外键约束，所以删除user表中的数据会自动删除admin表中的对应数据
+            deleteAdminNumber = userService.deleteUserById(userId);
+            //2.1同时还要删除Redis中的数据
+            redisCache.deleteObject(LOGIN_USER_KEY+userId);
+        }
+        //3.根据删除情况返回信息
+        if(deleteAdminNumber==0){
+            return ResponseResult.error("删除教师失败");
+        }else{
+            return ResponseResult.success("删除教师成功",null);
+        }
+    }
+
     @PutMapping("/updateTeacherStatus")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseResult updateTeacherStatus(@RequestBody TeacherDTO teacherDTO){
-        return teacherService.updateTeacherStatus(teacherDTO);
+    public ResponseResult updateTeacherStatus(@RequestParam Long userId){
+        int updateUserNumber = 0;//插入数据条数
+        //1.封装user对象
+        User user = new User();
+        user.setId(userId);
+        String status = userService.selectUserStatusByUserId(userId);
+        //修改教师状态
+        if(status.equals("banned")){
+            user.setStatus("active");
+        }
+        if(status.equals("active")){
+            user.setStatus("banned");
+        }
+        updateUserNumber = userService.updateById(user);
+        if(updateUserNumber==0){
+            return ResponseResult.error("教师状态更新失败");
+        }else{
+            return ResponseResult.success("教师状态更新成功",null);
+        }
     }
+
+
 }

@@ -64,14 +64,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String selectUserStatusByUserId(String userId) {
+    public String selectUserStatusByUserId(Long userId) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id",userId);
         return userMapper.selectOne(queryWrapper).getStatus();
     }
 
     @Override
-    public int deleteUserById(String userId) {
+    public int deleteUserById(Long userId) {
         return userMapper.deleteById(userId);
     }
 
