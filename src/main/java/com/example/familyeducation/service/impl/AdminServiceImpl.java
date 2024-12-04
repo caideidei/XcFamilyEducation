@@ -64,97 +64,20 @@ public class AdminServiceImpl implements AdminService {
      **/
     @Override
     @Transactional
-    public ResponseResult insertAdmin(UserDTO userDTO) {
-        int insertAdminNumber = 0;//用来判断后续数据是否插入成功
-        //1.封装user数据
-        //1.1创建一个User对象并将userDTO中数据传给user
-        User user = new User();
-        BeanUtils.copyProperties(userDTO,user);
-        //1.2添加user其他数据
-        //初始密码是手机号
-        String phoneNumber = userDTO.getPhoneNumber();
-        String password = passwordEncoder.encode(phoneNumber);
-        user.setPassword(password);
-        user.setRole("admin");
-        //2.判断手机号是否已被注册
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("phone_number",phoneNumber);
-        List<User> userList = userMapper.selectList(queryWrapper);
-        if(!userList.isEmpty()){
-            //2.1已被注册则报错
-            return ResponseResult.error("该手机号已被注册");
-        }else{
-            //3.未注册则将数据插入数据库
-            // 3.1先插入user表中
-            userMapper.insert(user);
-            //3.2再获取user表中的数据并封装admin对象
-            QueryWrapper<User> queryRegisterWrapper = new QueryWrapper<>();
-            queryRegisterWrapper.eq("phone_number",phoneNumber);
-            User registerUser = userMapper.selectOne(queryRegisterWrapper);
-            Long registerUserId = registerUser.getId();
-            LocalDateTime createdAt = registerUser.getCreatedAt();
-
-            Admin admin = new Admin();
-            admin.setUserId(registerUserId);
-            admin.setCreatedAt(createdAt);
-            insertAdminNumber = adminMapper.insert(admin);
-        }
-        //4.判断插入是否成功并返回信息
-        if(insertAdminNumber==0){
-            return ResponseResult.error("新增管理员失败");
-        }else{
-            return ResponseResult.success("新增管理员成功",null);
-        }
-
+    public int insertAdmin(Admin admin) {
+        return adminMapper.insert(admin);
     }
 
-    /**
-     * @author 小菜
-     * @date  2024/11/18
-     * @description 根据登录管理员id更新管理员信息
-     **/
-    @Override
-    public ResponseResult updateAdmin(User user) {
-        //1.1先从Holder中获取当前登录管理员id
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
-        Long loginUserId = loginUser.getUser().getId();
-        user.setId(loginUserId);
-        //2.根据获取到的id来修改管理员信息保证修改的只能是当前登录管理员的信息
-        //2.1判断封装的数据是否满足要求（账号唯一、非空等），不满足报错
-        //首先对传入的参数(用户名，手机号，密码，角色)进行非空判断
-        String username = user.getUsername();
-        String phoneNumber = user.getPhoneNumber();
-        String rawPassword = user.getPassword();
-        String role = user.getRole();
-        //密码加密
-        String password = passwordEncoder.encode(rawPassword);
-        user.setPassword(password);
-        int updateAdminNumber = 0;//用来判断插入数据条数
-        //判断非空
-        if(username==null||phoneNumber==null||password==null||role==null||
-                StringUtils.isEmpty(username) ||StringUtils.isEmpty(phoneNumber)||StringUtils.isEmpty(password)||StringUtils.isEmpty(role)){
-            return ResponseResult.error("数据填写不完整，修改管理员信息失败");
-        }
-        //3.判断手机号是否已经注册(这里查询手机号是如果用户是自己是可以的，相当于修改自己的其他信息，手机号不变)
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("phone_number",phoneNumber).ne("id",loginUserId);
-        List<User> userList = userMapper.selectList(queryWrapper);
-        if(!userList.isEmpty()){
-            //3.1.手机号已经注册则报错
-            return ResponseResult.error("该手机号已被注册");
-        }else{
-            //4.满足要求将数据存入数据库中
-            updateAdminNumber = userMapper.updateById(user);
-        }
-        //5.判断是否修改成功并返回信息
-        if(updateAdminNumber==0){
-            return ResponseResult.error("修改管理员信息失败");
-        }else{
-            return ResponseResult.success("修改管理员信息成功",null);
-        }
 
-    }
+//    /**
+//     * @author 小菜
+//     * @date  2024/11/18
+//     * @description 根据登录管理员id更新管理员信息
+//     **/
+//    @Override
+//    public ResponseResult updateAdmin(User user) {
+//
+//    }
 
     /**
      * @author 小菜
@@ -195,4 +118,15 @@ public class AdminServiceImpl implements AdminService {
         Long id = adminMapper.selectOne(adminQueryWrapper).getId();
         return id;
     }
+
+    /**
+     * @author 小菜
+     * @date  2024/12/4
+     * @description 更新admin
+     **/
+    @Override
+    public int updateAdmin(Admin admin) {
+        return adminMapper.updateById(admin);
+    }
+
 }

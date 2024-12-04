@@ -9,6 +9,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @ClassDescription:
  * @Author:小菜
@@ -27,4 +29,39 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(user,userInfoVO);
         return userInfoVO;
     }
+
+    @Override
+    public List<User> selectByPhone(String phoneNumber) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("phone_number",phoneNumber);
+        List<User> userList = userMapper.selectList(queryWrapper);
+        return userList;
+    }
+
+    @Override
+    public int insertUser(User user) {
+        return userMapper.insert(user);
+    }
+
+    @Override
+    public User selectOneByPhone(String phoneNumber) {
+        QueryWrapper<User> queryRegisterWrapper = new QueryWrapper<>();
+        queryRegisterWrapper.eq("phone_number",phoneNumber);
+        User registerUser = userMapper.selectOne(queryRegisterWrapper);
+        return registerUser;
+    }
+
+    @Override
+    public List<User> selectByPhoneAndId(String phoneNumber, Long id) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("phone_number",phoneNumber).ne("id",id);
+        return userMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public int updateById(User user) {
+        return userMapper.updateById(user);
+    }
+
+
 }

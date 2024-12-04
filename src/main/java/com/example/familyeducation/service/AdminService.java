@@ -17,11 +17,13 @@ import java.util.List;
 public interface AdminService {
     List<AdminVO> selectAllAdmins();
 
-    ResponseResult insertAdmin(UserDTO userDTO);
+    int insertAdmin(Admin admin);
 
-    ResponseResult updateAdmin(User user);
+//    ResponseResult updateAdmin(User user);
 
     ResponseResult deleteAdmin(String phoneNumber);
 
     Long selectAdminId(QueryWrapper<Admin> adminQueryWrapper);
+
+    int updateAdmin(Admin admin);
 }

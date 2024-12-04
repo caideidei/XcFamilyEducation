@@ -148,6 +148,5 @@ public class LoginServiceImpl implements LoginService {
         }else{
             return ResponseResult.error("注册失败");
         }
-
     }
 }

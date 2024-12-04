@@ -1,6 +1,9 @@
 package com.example.familyeducation.service;
 
+import com.example.familyeducation.entity.User;
 import com.example.familyeducation.vo.UserInfoVO;
+
+import java.util.List;
 
 /**
  * @ClassDescription:
@@ -9,4 +12,14 @@ import com.example.familyeducation.vo.UserInfoVO;
  **/
 public interface UserService {
     UserInfoVO selectByUserId(String userId);
+
+    List<User> selectByPhone(String phoneNumber);
+
+    int insertUser(User user);
+
+    User selectOneByPhone(String phoneNumber);
+
+    List<User> selectByPhoneAndId(String phoneNumber,Long id);
+
+    int updateById(User user);
 }
