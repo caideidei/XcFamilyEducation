@@ -9,6 +9,7 @@ import lombok.Data;
  **/
 @Data
 public class TeacherDTO {
+    private Long id;
     private String username;
     private String password;
     private String phoneNumber;
@@ -16,9 +17,7 @@ public class TeacherDTO {
     private String picture;
     private String role;
 
+    private Long teacherId;
     private String realName;
-    private String qualification;
-    private String intro;
-    private Integer officialTeacher;
-    private String subjects;
+
 }
