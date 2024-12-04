@@ -9,13 +9,13 @@ import lombok.Data;
  **/
 @Data
 public class ParentDTO {
-
+    private Long id;
     private String username;
     private String password;
     private String phoneNumber;
     private String email;
     private String picture;
-    private String role;
-
+    private String status;
+    private Long parentId;
     private String realName;
 }

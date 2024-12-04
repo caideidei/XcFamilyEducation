@@ -16,7 +16,7 @@ import java.util.List;
 public interface ParentService {
     List<ParentVO> selectAllParents();
 
-    ResponseResult updateParent(ParentDTO parentDTO);
+    int updateParent(Parent parent);
 
     Long selectParentId(QueryWrapper<Parent> parentQueryWrapper);
 }
