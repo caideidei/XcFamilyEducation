@@ -63,5 +63,17 @@ public class UserServiceImpl implements UserService {
         return userMapper.updateById(user);
     }
 
+    @Override
+    public String selectUserStatusByUserId(String userId) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id",userId);
+        return userMapper.selectOne(queryWrapper).getStatus();
+    }
+
+    @Override
+    public int deleteUserById(String userId) {
+        return userMapper.deleteById(userId);
+    }
+
 
 }

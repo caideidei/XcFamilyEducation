@@ -9,7 +9,9 @@ import com.example.familyeducation.entity.User;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.AdminService;
 import com.example.familyeducation.service.UserService;
+import com.example.familyeducation.utils.RedisCache;
 import com.example.familyeducation.vo.AdminVO;
+import com.example.familyeducation.vo.UserInfoVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.example.familyeducation.constants.RedisConstants.LOGIN_USER_KEY;
 
 /**
  * @ClassDescription:
@@ -39,6 +43,8 @@ public class AdminController {
     private UserService userService;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RedisCache redisCache;
 
     @GetMapping("/selectAllAdmins")
     @PreAuthorize("hasRole('ADMIN')")
@@ -149,7 +155,25 @@ public class AdminController {
 
     @DeleteMapping("/deleteAdmin")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseResult deleteAdmin(@RequestParam String phoneNumber){
-        return adminService.deleteAdmin(phoneNumber);
+    public ResponseResult deleteAdmin(@RequestParam String userId){
+        int deleteAdminNumber = 0;//判断删除数量
+        //1.根据传入userId判断当前用户状态
+        String status = userService.selectUserStatusByUserId(userId);
+        if(!status.equals("banned")){
+            //1.1不为banned时无法删除，报错
+            return ResponseResult.error("无法删除该管理员");
+        }else{
+            //2.为banned时可以删除，删除数据库中的信息
+            //因为admin表关联user表的外键，同时设置了外键约束，所以删除user表中的数据会自动删除admin表中的对应数据
+            deleteAdminNumber = userService.deleteUserById(userId);
+            //2.1同时还要删除Redis中的数据
+            redisCache.deleteObject(LOGIN_USER_KEY+userId);
+        }
+        //3.根据删除情况返回信息
+        if(deleteAdminNumber==0){
+            return ResponseResult.error("删除管理员失败");
+        }else{
+            return ResponseResult.success("删除管理员成功",null);
+        }
     }
 }

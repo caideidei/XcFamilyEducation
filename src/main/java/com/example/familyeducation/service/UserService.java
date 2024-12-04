@@ -22,4 +22,8 @@ public interface UserService {
     List<User> selectByPhoneAndId(String phoneNumber,Long id);
 
     int updateById(User user);
+
+    String selectUserStatusByUserId(String userId);
+
+    int  deleteUserById(String userId);
 }

@@ -19,10 +19,6 @@ public interface AdminService {
 
     int insertAdmin(Admin admin);
 
-//    ResponseResult updateAdmin(User user);
-
-    ResponseResult deleteAdmin(String phoneNumber);
-
     Long selectAdminId(QueryWrapper<Admin> adminQueryWrapper);
 
     int updateAdmin(Admin admin);

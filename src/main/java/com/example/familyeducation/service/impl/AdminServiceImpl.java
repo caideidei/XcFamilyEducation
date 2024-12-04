@@ -68,51 +68,11 @@ public class AdminServiceImpl implements AdminService {
         return adminMapper.insert(admin);
     }
 
-
-//    /**
-//     * @author 小菜
-//     * @date  2024/11/18
-//     * @description 根据登录管理员id更新管理员信息
-//     **/
-//    @Override
-//    public ResponseResult updateAdmin(User user) {
-//
-//    }
-
     /**
      * @author 小菜
-     * @date  2024/11/18
-     * @description 删除对应的管理员信息
+     * @date  2024/12/4
+     * @description 根据条件查询管理员id
      **/
-    @Override
-    public ResponseResult deleteAdmin(String phoneNumber) {
-        int deleteAdminNumber = 0;//判断删除数量
-        //1.根据手机号查询信息
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("phone_number",phoneNumber);
-        User user = userMapper.selectOne(queryWrapper);
-        Long userId = user.getId();
-        //2.判断该管理员状态
-        String status = user.getStatus();
-        if(!status.equals("banned")){
-            //2.1不为banned时无法删除，报错
-            return ResponseResult.error("无法删除该管理员");
-        }else{
-            //3.为banned时可以删除，删除数据库中的信息
-            //3.1删除user表中的信息,admin中的信息会自动删除
-            deleteAdminNumber = userMapper.deleteById(userId);
-            //TODO删除管理员后Redis中删除数据
-            redisCache.deleteObject(LOGIN_USER_KEY+userId);
-        }
-
-        //4.根据删除情况返回信息
-        if(deleteAdminNumber==0){
-            return ResponseResult.error("删除管理员失败");
-        }else{
-            return ResponseResult.success("删除管理员成功",null);
-        }
-    }
-
     @Override
     public Long selectAdminId(QueryWrapper<Admin> adminQueryWrapper) {
         Long id = adminMapper.selectOne(adminQueryWrapper).getId();
