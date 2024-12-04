@@ -12,11 +12,11 @@ import java.util.List;
  * @Create:2024/11/19 16:24
  **/
 public interface FeedbackService {
-    ResponseResult insertFeedback(Feedback feedback);
+    int insertFeedback(Feedback feedback);
 
     List<FeedbackVO> selectAllFeedBacks();
 
-    ResponseResult updateFeedback(Feedback feedback);
+    int updateFeedback(Feedback feedback);
 
     ResponseResult deleteFeedback(Feedback feedback);
 }

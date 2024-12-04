@@ -31,9 +31,6 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @Autowired
-    private ParentMapper parentMapper;
-
-    @Autowired
     private GetUserIdUtil getUserIdUtil;
 
     @GetMapping("/selectAllReviews")
