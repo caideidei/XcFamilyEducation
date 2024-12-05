@@ -15,8 +15,9 @@ import java.util.List;
 public interface NoticeService {
     List<Notice> selectAllNotices();
 
-    ResponseResult insertNotice(NoticeDTO noticeDTO);
+    int insertNotice(Notice notice);
 
+    int deleteNotice(Long id);
 
-    ResponseResult deleteNotice(Notice notice);
+    int updateNotice(Notice notice);
 }

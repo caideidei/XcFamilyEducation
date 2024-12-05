@@ -32,42 +32,18 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
-    public ResponseResult insertNotice(NoticeDTO noticeDTO) {
-        int insertNoticeNumber = 0;
-        //1.先封装noticeDTO数据为notice对象
-        Notice notice = new Notice();
-        BeanUtils.copyProperties(noticeDTO,notice);
-        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long loginUserId = loginUser.getUser().getId();
-        notice.setCreatedBy(loginUserId);
-        notice.setCreatedAt(LocalDateTime.now());
-        notice.setExpirationDate(null);
-        //2.判断非空
-        if(notice.getTitle()==null||notice.getContent()==null
-                || StringUtils.isEmpty(notice.getTitle())||StringUtils.isEmpty(notice.getContent())){
-            return ResponseResult.error("传入数据不完整，新增失败");
-        }else{
-            //3.将数据传入数据库
-            insertNoticeNumber = noticeMapper.insert(notice);
-        }
-        //4.判断并返回前端
-        if(insertNoticeNumber==0){
-            return ResponseResult.error("新增公告失败");
-        }else{
-            return ResponseResult.success("新增公告成功",null);
-        }
-
+    public int insertNotice(Notice notice) {
+        return noticeMapper.insert(notice);
     }
 
     @Override
-    public ResponseResult deleteNotice(Notice notice) {
-        //直接删除即可
-        int deleteNoticeNumber = noticeMapper.deleteById(notice);
-        if(deleteNoticeNumber==0){
-            return ResponseResult.error("删除失败");
-        }else{
-            return ResponseResult.success("删除成功",null);
-        }
+    public int deleteNotice(Long id) {
+        return noticeMapper.deleteById(id);
+    }
+
+    @Override
+    public int updateNotice(Notice notice) {
+        return noticeMapper.updateById(notice);
     }
 
 
