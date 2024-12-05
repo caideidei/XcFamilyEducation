@@ -37,6 +37,9 @@ public class Order implements Serializable {
     @Schema(name = "price", description = "家教价格")
     private Long price;
 
+    @Schema(name = "classNumber", description = "预计课时数")
+    private Long classNumber;
+
     @Schema(name = "address", description = "家教地址")
     private String address;
 

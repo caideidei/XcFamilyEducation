@@ -16,6 +16,8 @@ public class OrderDTO {
 
     private Long price;
 
+    private Long classNumber;
+
     private String address;
 
     private String grade;

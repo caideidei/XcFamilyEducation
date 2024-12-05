@@ -74,61 +74,73 @@ public class TeacherExamineController {
      * @date  2024/11/24
      * @description 管理员通过审核
      **/
-    @PutMapping("/approvedExamine")
+    @PutMapping("/approvedOrRejectedExamine")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public ResponseResult approvedExamine(@RequestBody TeacherExamine teacherExamine){
-        //1.封装数据admin_id,status,reason
-        teacherExamine.setAdminId(getUserIdUtil.getAdminId());
-        teacherExamine.setStatus(EXAMINE_APPROVED);
-        teacherExamine.setReason(EXAMINE_APPROVED_REASON);
-        //2.将数据存到审核表和教师信息表
-        int updateTeacherExamineNumber = teacherExamineService.update(teacherExamine);
-
-        Long teacherId = teacherExamine.getTeacherId();
-        QueryWrapper<Teacher> teacherQueryWrapper = new QueryWrapper<>();
-        teacherQueryWrapper.eq("id",teacherId);
-        Teacher teacher = teacherService.selectById(teacherQueryWrapper);
+        String status = teacherExamine.getStatus();
+        //审核通过
+        if(status.equals(EXAMINE_APPROVED)) {
+            if(teacherExamine.getReason().isEmpty()){
+                teacherExamine.setReason(EXAMINE_APPROVED_REASON);
+            }
+            //1.封装数据admin_id,status,reason
+            teacherExamine.setAdminId(getUserIdUtil.getAdminId());
+            teacherExamine.setStatus(EXAMINE_APPROVED);
+            teacherExamine.setCreatedAt(LocalDateTime.now());
+            //2.将数据存到审核表和教师信息表
+            int updateTeacherExamineNumber = teacherExamineService.update(teacherExamine);
+            Long teacherId = teacherExamine.getTeacherId();
+            QueryWrapper<Teacher> teacherQueryWrapper = new QueryWrapper<>();
+            teacherQueryWrapper.eq("id", teacherId);
+            Teacher teacher = teacherService.selectById(teacherQueryWrapper);
 //        BeanUtils.copyProperties(teacherExamine,teacher);//这里不能直接复制，因为会修改teacher表中的id
 
-        teacher.setRealName(teacherExamine.getRealName());
-        teacher.setQualification(teacherExamine.getQualification());
-        teacher.setIntro(teacherExamine.getIntro());
-        teacher.setOfficialTeacher(1);
-        teacher.setSubjects(teacherExamine.getSubjects());
+            teacher.setRealName(teacherExamine.getRealName());
+            teacher.setQualification(teacherExamine.getQualification());
+            teacher.setIntro(teacherExamine.getIntro());
+            teacher.setOfficialTeacher(1);
+            teacher.setSubjects(teacherExamine.getSubjects());
 
-        int updateTeacherNumber = teacherService.update(teacher);
-        //3.根据数据更新情况返回信息给前端
-        if(updateTeacherExamineNumber==0||updateTeacherNumber==0){
-            return ResponseResult.error("审核信息更新失败");
-        }else{
-            return ResponseResult.success("审核信息更新成功",null);
+            int updateTeacherNumber = teacherService.update(teacher);
+            //3.根据数据更新情况返回信息给前端
+            if (updateTeacherExamineNumber == 0 || updateTeacherNumber == 0) {
+                return ResponseResult.error("审核信息更新失败");
+            } else {
+                return ResponseResult.success("审核信息更新成功", null);
+            }
+        }else {
+            //审核失败
+            //1.封装数据admin_id,status,reason
+            if(teacherExamine.getReason().isEmpty()){
+                teacherExamine.setReason(EXAMINE_REJECTED_REASON);
+            }
+            teacherExamine.setAdminId(getUserIdUtil.getAdminId());
+            teacherExamine.setStatus(EXAMINE_REJECTED);
+            teacherExamine.setCreatedAt(LocalDateTime.now());
+            //2.将数据存到审核表和教师信息表
+            int updateTeacherExamineNumber = teacherExamineService.update(teacherExamine);
+
+            //3.根据数据更新情况返回信息给前端
+            if(updateTeacherExamineNumber==0){
+                return ResponseResult.error("审核信息更新失败");
+            }else{
+                return ResponseResult.success("审核信息更新成功",null);
+            }
         }
     }
 
-    /**
-     * @author 小菜
-     * @date  2024/11/24
-     * @description 管理员不通过审核
-     **/
-    @PutMapping("/rejectedExamine")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Transactional
-    public ResponseResult rejectedExamine(@RequestBody TeacherExamine teacherExamine){
-        //1.封装数据admin_id,status,reason
-        teacherExamine.setAdminId(getUserIdUtil.getAdminId());
-        teacherExamine.setStatus(EXAMINE_REJECTED);
-        teacherExamine.setReason(EXAMINE_REJECTED_REASON);
-        //2.将数据存到审核表和教师信息表
-        int updateTeacherExamineNumber = teacherExamineService.update(teacherExamine);
-
-        //3.根据数据更新情况返回信息给前端
-        if(updateTeacherExamineNumber==0){
-            return ResponseResult.error("审核信息更新失败");
-        }else{
-            return ResponseResult.success("审核信息更新成功",null);
-        }
-    }
+//    /**
+//     * @author 小菜
+//     * @date  2024/11/24
+//     * @description 管理员不通过审核
+//     **/
+//    @PutMapping("/rejectedExamine")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @Transactional
+//    public ResponseResult rejectedExamine(@RequestBody TeacherExamine teacherExamine){
+//
+//    }
 
     /**
      * @author 小菜

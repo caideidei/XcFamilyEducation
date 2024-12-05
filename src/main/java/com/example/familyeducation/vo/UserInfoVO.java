@@ -12,4 +12,5 @@ import lombok.Data;
 public class UserInfoVO {
     private String username;
     private String picture;
+    private String role;
 }

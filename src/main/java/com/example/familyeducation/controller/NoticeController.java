@@ -97,6 +97,7 @@ public class NoticeController {
         LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long loginUserId = loginUser.getUser().getId();
         notice.setCreatedBy(loginUserId);
+        notice.setCreatedAt(LocalDateTime.now());
         //2.数据完整则进行修改
         int updateNoticeNumber = noticeService.updateNotice(notice);
         if(updateNoticeNumber==0){
