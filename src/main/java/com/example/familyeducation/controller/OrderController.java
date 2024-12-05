@@ -15,16 +15,14 @@ import com.example.familyeducation.utils.ValidationUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -50,7 +48,110 @@ public class OrderController {
     @Autowired
     private RedisCache redisCache;
 
-    //TODO 修改数据库的数据时要修改Redis中的对应数据，同时查询所有订单时，如果其他有订单改变，就不会查询完整（Redis数据更新问题）
+    //TODO修改数据库的数据时要修改Redis中的对应数据，同时查询所有订单时，如果其他有订单改变，就不会查询完整（Redis数据更新问题）
+
+    /**
+     * @author 小菜
+     * @date  2024/11/23
+     * @description 家长查询自己的订单信息
+     **/
+    @GetMapping("/teacherSelectOrders")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseResult teacherSelectOrders(){
+        //1.获取当前登录用户id并查询对应parent_id
+        Long teacherId = getUserIdUtil.getTeacherId();
+        //2.根据当前parentId查询对应订单数据
+        QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
+        orderQueryWrapper.eq("teacher_id",teacherId);
+        List<Order> orderList = orderService.selectMyOrders(orderQueryWrapper);
+        return ResponseResult.success("成功查询到订单",orderList);
+    }
+
+    /**
+     * @author 小菜
+     * @date  2024/11/23
+     * @description 家长查询自己的订单信息
+     **/
+    @GetMapping("/parentSelectOrders")
+    @PreAuthorize("hasRole('PARENT')")
+    public ResponseResult parentSelectOrders(){
+        //1.获取当前登录用户id并查询对应parent_id
+        Long parentId = getUserIdUtil.getParentId();
+        //2.根据当前parentId查询对应订单数据
+        QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
+        orderQueryWrapper.eq("parent_id",parentId);
+        List<Order> orderList = orderService.selectMyOrders(orderQueryWrapper);
+        return ResponseResult.success("成功查询到订单",orderList);
+    }
+
+    /**
+     * @author 小菜
+     * @date  2024/12/5
+     * @description 查询所有通过审核的订单
+     **/
+    @GetMapping("/selectAllPassedOrders")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
+    public ResponseResult selectAllPassedOrders(){
+
+        List<Order> orderList;
+        //1.从Redis中查询数据
+        Collection<String> keys = redisCache.keys(ORDER_MESSAGE_KEY + "*");
+        //2.Redis中为空，从数据库中查询
+        if(keys==null||keys.isEmpty()){
+            //2.1查询数据库的所有数据
+            orderList = orderService.selectAllOrders(new QueryWrapper<Order>().notIn("status",Arrays.asList(ORDER_REVIEW_FAILED,ORDER_PENDING_REVIEW)));
+            //2.2数据库中有数据，将数据存到Redis
+            if(orderList!=null&&!orderList.isEmpty()){
+                for (Order order : orderList) {
+                    String key = ORDER_MESSAGE_KEY+order.getId();
+                    redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL,TimeUnit.MINUTES);
+                }
+                return ResponseResult.success("成功查询数据",orderList);
+            }else{
+                //2.3数据库中无数据，报错
+                return ResponseResult.error("数据为空");
+            }
+        }
+        //3.Redis中存在数据，判断数据是否完整
+        //3.1查询数据库中通过审核的总数
+        orderList = orderService.selectAllOrders(new QueryWrapper<Order>().notIn("status",Arrays.asList(ORDER_REVIEW_FAILED,ORDER_PENDING_REVIEW)));
+        //3.2Redis中的数据不完整
+        if(orderList.size()!=keys.size()){
+            //3.3将数据库中的完整数据更新到Redis中
+            if(orderList!=null&&!orderList.isEmpty()){
+                for (Order order : orderList) {
+                    String key = ORDER_MESSAGE_KEY+order.getId();
+                    redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL,TimeUnit.MINUTES);
+                }
+                return ResponseResult.success("成功查询数据",orderList);
+            }else{
+                return ResponseResult.error("数据为空");
+            }
+        }
+        //3，4Redis数据完整，直接返回
+        orderList = keys.stream()
+                .map(key ->(Order)redisCache.getCacheObject(key))
+                .sorted(Comparator.comparing(Order::getId))
+                .collect(Collectors.toList());
+        return ResponseResult.success("成功查询数据",orderList);
+    }
+
+    /**
+     * @author 小菜
+     * @date  2024/12/5
+     * @description 管理员查询所有订单
+     **/
+    @GetMapping("/selectAllOrders")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseResult selectAllOrders(){
+        //1.直接查询所有订单并返回
+        List<Order> orderList = orderService.selectAllOrders(null);
+        if(orderList==null){
+            return ResponseResult.error("查询数据为空");
+        }else{
+            return ResponseResult.success("查询数据成功",orderList);
+        }
+    }
 
     /**
      * @author 小菜
@@ -78,6 +179,8 @@ public class OrderController {
             order.setCreatedAt(LocalDateTime.now());
             //3.插入数据到数据库
             insertOrderNumber = orderService.insertOrder(order);
+            String key = ORDER_MESSAGE_KEY + order.getId();
+            redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
         }
         //4.判断插入情况
         if(insertOrderNumber==0){
@@ -90,15 +193,16 @@ public class OrderController {
     /**
      * @author 小菜
      * @date  2024/11/23
-     * @description 管理员审核订单状态为通过
+     * @description 管理员审核订单状态
      **/
-    @PutMapping("/passOrder")
+    @PutMapping("/passOrFailOrder")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseResult passOrder(@RequestBody Order order){
-        //1.直接修改状态为通过并传给数据库
-        order.setStatus(ORDER_REVIEW_PASSED);
+        //1.直接传给数据库
         int update = 0;
         update = orderService.updateOrder(order);
+        String key = ORDER_MESSAGE_KEY + order.getId();
+        redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
         if(update==0){
             return ResponseResult.error("修改状态失败");
         }else {
@@ -109,60 +213,7 @@ public class OrderController {
     /**
      * @author 小菜
      * @date  2024/11/23
-     * @description 管理员审核订单为失败状态
-     **/
-    @PutMapping("/failOrder")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseResult failOrder(@RequestBody Order order){
-        //1.直接修改状态为通过并传给数据库
-        order.setStatus(ORDER_REVIEW_FAILED);
-        int update = 0;
-        update = orderService.updateOrder(order);
-        if(update==0){
-            return ResponseResult.error("修改状态失败");
-        }else {
-            return ResponseResult.success("修改状态成功",null);
-        }
-    }
-
-    /**
-     * @author 小菜
-     * @date  2024/11/23
-     * @description 家长查询自己的订单信息
-     **/
-    @GetMapping("/parentSelectOrders")
-    @PreAuthorize("hasRole('PARENT')")
-    public ResponseResult parentSelectOrders(){
-        //1.获取当前登录用户id并查询对应parent_id
-        Long parentId = getUserIdUtil.getParentId();
-        //2.根据当前parentId查询对应订单数据
-        QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
-        orderQueryWrapper.eq("parent_id",parentId);
-        List<Order> orderList = orderService.selectMyOrders(orderQueryWrapper);
-        return ResponseResult.success("成功查询到订单",orderList);
-    }
-
-    /**
-     * @author 小菜
-     * @date  2024/11/23
-     * @description 家长查询自己的订单信息
-     **/
-    @GetMapping("/teacherSelectOrders")
-    @PreAuthorize("hasRole('TEACHER')")
-    public ResponseResult teacherSelectOrders(){
-        //1.获取当前登录用户id并查询对应parent_id
-        Long teacherId = getUserIdUtil.getTeacherId();
-        //2.根据当前parentId查询对应订单数据
-        QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
-        orderQueryWrapper.eq("teacher_id",teacherId);
-        List<Order> orderList = orderService.selectMyOrders(orderQueryWrapper);
-        return ResponseResult.success("成功查询到订单",orderList);
-    }
-
-    /**
-     * @author 小菜
-     * @date  2024/11/23
-     * @description 重新修改订单（审核失败，成功的订单）
+     * @description 家长重新修改订单（审核失败，成功的订单）
      **/
     @PutMapping("/republishOrder")
     @PreAuthorize("hasRole('PARENT')")
@@ -180,6 +231,8 @@ public class OrderController {
             order.setStatus(ORDER_PENDING_REVIEW);
             //3.2将新订单对象插入数据库
             updateOrderNumber = orderService.updateOrder(order);
+            String key = ORDER_MESSAGE_KEY + order.getId();
+            redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
         }
         //4.根据插入情况向前端返回数据
         if(updateOrderNumber==0){
@@ -189,39 +242,12 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/selectAllOrders")
-    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
-    public ResponseResult selectAllOrders(){
-        List<Order> orderList;
-        //1.从Redis中查询数据,查询以xc:order:开头的所有键
-        Collection<String> keys = redisCache.keys(ORDER_MESSAGE_KEY+"*");
 
-        if(keys!=null&&!keys.isEmpty()){
-            //1.1Redis中存在对应数据直接返回,可以取得每个订单并添加到List中返回，也可以使用下面方法
-            orderList= keys.stream()
-                    .map(key->(Order)redisCache.getCacheObject(key))
-                    .collect(Collectors.toList());
-            if(!orderList.isEmpty()){
-                return ResponseResult.success("成功查询订单(Redis):",orderList);
-            }
-        }
-        //2.Redis中不存在对应数据则从数据库中查询数据
-        QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
-        orderQueryWrapper.notIn("status", Arrays.asList(ORDER_PENDING_REVIEW,ORDER_REVIEW_FAILED));
-        orderList= orderService.selectAllOrders(orderQueryWrapper);
-        //2.1数据库中不存在对应数据，返回错误信息
-        if(orderList==null||orderList.isEmpty()){
-            return ResponseResult.success("查询数据为空",null);
-        }
-        //3.数据库存在数据，将数据存到Redis中
-        for (Order order : orderList) {
-            String key = ORDER_MESSAGE_KEY + order.getId();
-            redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
-        }
-        //3.1将从数据库中查询到的数据返回前端
-        return ResponseResult.success("成功查询订单(数据库):",orderList);
-    }
-
+    /**
+     * @author 小菜
+     * @date  2024/12/5
+     * @description 教师试课
+     **/
     @PutMapping("/inTrial")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseResult inTrail(@RequestBody Order order){
@@ -237,6 +263,8 @@ public class OrderController {
         order.setTeacherId(teacherId);
         //3.存入数据库
         int updateOrder = orderService.updateOrder(order);
+        String key = ORDER_MESSAGE_KEY + order.getId();
+        redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
         //4.判断更新情况
         if(updateOrder==0){
             return ResponseResult.error("更新订单失败");
@@ -245,6 +273,11 @@ public class OrderController {
         }
     }
 
+    /**
+     * @author 小菜
+     * @date  2024/12/5
+     * @description 试课失败
+     **/
     @PutMapping("/trialFailed")
     @PreAuthorize("hasRole('PARENT')")
     public ResponseResult trialFailed(@RequestBody Order order){
@@ -260,6 +293,8 @@ public class OrderController {
         order.setStatus(ORDER_REVIEW_PASSED);
         //3.更新数据库表
         int updateOrderNumber = orderService.updateOrder(order);
+        String key = ORDER_MESSAGE_KEY + order.getId();
+        redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
         //4.判断更新情况
         if(updateOrderNumber==0){
             return ResponseResult.error("更新订单信息失败");
@@ -268,6 +303,11 @@ public class OrderController {
         }
     }
 
+    /**
+     * @author 小菜
+     * @date  2024/12/5
+     * @description 试课通过
+     **/
     @PutMapping("/trialPassed")
     @PreAuthorize("hasRole('PARENT')")
     public ResponseResult trailPassed(@RequestBody Order order){
@@ -281,6 +321,8 @@ public class OrderController {
         order.setStatus(ORDER_ACCEPTED);
         //3.更新数据库表
         int updateOrderNumber = orderService.updateOrder(order);
+        String key = ORDER_MESSAGE_KEY + order.getId();
+        redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
         //4.判断更新情况
         if(updateOrderNumber==0){
             return ResponseResult.error("更新订单信息失败");
@@ -288,7 +330,5 @@ public class OrderController {
             return ResponseResult.success("成功更新订单信息",null);
         }
     }
-
-
 
 }

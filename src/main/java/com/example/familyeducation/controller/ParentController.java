@@ -130,4 +130,27 @@ public class ParentController {
             return ResponseResult.success("删除家长成功",null);
         }
     }
+
+    @PutMapping("/updateParentStatus")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseResult updateTeacherStatus(@RequestParam Long userId){
+        int updateUserNumber = 0;//插入数据条数
+        //1.封装user对象
+        User user = new User();
+        user.setId(userId);
+        String status = userService.selectUserStatusByUserId(userId);
+        //修改教师状态
+        if(status.equals("banned")){
+            user.setStatus("active");
+        }
+        if(status.equals("active")){
+            user.setStatus("banned");
+        }
+        updateUserNumber = userService.updateById(user);
+        if(updateUserNumber==0){
+            return ResponseResult.error("状态更新失败");
+        }else{
+            return ResponseResult.success("状态更新成功",null);
+        }
+    }
 }

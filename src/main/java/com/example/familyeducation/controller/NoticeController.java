@@ -32,7 +32,7 @@ public class NoticeController {
 
     @GetMapping("/selectAllNotices")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
-    public ResponseResult selectAllAnnouncements(){
+    public ResponseResult selectAllNotices(){
         List<Notice> noticeList = noticeService.selectAllNotices();
         if(noticeList.isEmpty()){
             return ResponseResult.success("查询数据为空",null);

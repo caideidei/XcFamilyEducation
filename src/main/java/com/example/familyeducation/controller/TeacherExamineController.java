@@ -129,18 +129,7 @@ public class TeacherExamineController {
             }
         }
     }
-
-//    /**
-//     * @author 小菜
-//     * @date  2024/11/24
-//     * @description 管理员不通过审核
-//     **/
-//    @PutMapping("/rejectedExamine")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    @Transactional
-//    public ResponseResult rejectedExamine(@RequestBody TeacherExamine teacherExamine){
-//
-//    }
+    
 
     /**
      * @author 小菜
