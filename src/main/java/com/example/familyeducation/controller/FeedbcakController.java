@@ -83,8 +83,25 @@ public class FeedbcakController {
 
     @DeleteMapping("/deleteFeedback")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
-    public ResponseResult deleteFeedback(@RequestBody Feedback feedback){
-        return feedbcakService.deleteFeedback(feedback);
+    public ResponseResult deleteFeedback(@RequestParam Long id){
+        int deleteFeedbackNumber = 0;
+        //1.获取当前登录用户
+        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long loginUserId = loginUser.getUser().getId();
+        Long senderId = feedbcakService.selectSenderIdById(id);
+        //2.判断是否删除的是自己的反馈
+        if(loginUserId!=senderId){
+            //2.1删除别人的反馈，报错
+            return ResponseResult.error("无法删除别人的反馈信息");
+        }else{
+            //3.删除自己的反馈，直接从数据库中进行删除
+            deleteFeedbackNumber = feedbcakService.deleteFeedback(id);
+        }
+        if(deleteFeedbackNumber==0){
+            return ResponseResult.error("删除失败");
+        }else{
+            return ResponseResult.success("删除成功",null);
+        }
     }
 
 }

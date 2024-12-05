@@ -49,23 +49,12 @@ public class FeedbcakServiceImpl implements FeedbackService{
     }
 
     @Override
-    public ResponseResult deleteFeedback(Feedback feedback) {
-        int deleteFeedbackNumber = 0;
-        //1.获取当前登录用户
-        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long loginUserId = loginUser.getUser().getId();
-        //2.判断是否删除的是自己的反馈
-        if(loginUserId!=feedback.getSenderId()){
-             //2.1删除别人的反馈，报错
-            return ResponseResult.error("无法删除别人的反馈信息");
-        }else{
-            //3.删除自己的反馈，直接从数据库中进行删除
-            deleteFeedbackNumber = feedbackMapper.deleteById(feedback);
-        }
-        if(deleteFeedbackNumber==0){
-            return ResponseResult.error("删除失败");
-        }else{
-            return ResponseResult.success("删除成功",null);
-        }
+    public int deleteFeedback(Long id) {
+        return feedbackMapper.deleteById(id);
+    }
+
+    @Override
+    public Long selectSenderIdById(Long id) {
+        return feedbackMapper.selectById(id).getSenderId();
     }
 }

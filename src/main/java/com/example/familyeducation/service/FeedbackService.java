@@ -18,5 +18,7 @@ public interface FeedbackService {
 
     int updateFeedback(Feedback feedback);
 
-    ResponseResult deleteFeedback(Feedback feedback);
+    int deleteFeedback(Long id);
+
+    Long selectSenderIdById(Long id);
 }
