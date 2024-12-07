@@ -3,6 +3,7 @@ package com.example.familyeducation.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import java.io.Serializable;
@@ -26,5 +27,6 @@ public class Feedback implements Serializable {
     private String message;
 
     @Schema(name = "createdAt", description = "创建时间，默认当前时间")
+    @JsonIgnore
     private LocalDateTime createdAt;
 }
