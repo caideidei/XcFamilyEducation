@@ -4,7 +4,10 @@ import com.example.familyeducation.entity.Feedback;
 import com.example.familyeducation.entity.LoginUser;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.FeedbackService;
+import com.example.familyeducation.utils.JwtUtil;
 import com.example.familyeducation.vo.FeedbackVO;
+import com.example.familyeducation.vo.UserInfoVO;
+import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -103,5 +106,22 @@ public class FeedbcakController {
             return ResponseResult.success("删除成功",null);
         }
     }
+
+    @GetMapping("/selectMyFeedbacks")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
+    public ResponseResult selectMyFeedbacks(@RequestHeader("token") String token) throws Exception {
+        //1.解析token并获得其中的用户id
+        Claims parseJWT = JwtUtil.parseJWT(token);
+        Long userId = Long.valueOf(parseJWT.getSubject());
+        //根据用户id查询反馈信息并返回
+        List<FeedbackVO> feedbackVOList = feedbcakService.selectMyFeedbacks(userId);
+        if(feedbackVOList.isEmpty()){
+            return ResponseResult.error("查询数据为空");
+        }else{
+            return ResponseResult.success("查询成功",feedbackVOList);
+        }
+    }
+
+
 
 }

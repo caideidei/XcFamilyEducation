@@ -57,4 +57,9 @@ public class FeedbcakServiceImpl implements FeedbackService{
     public Long selectSenderIdById(Long id) {
         return feedbackMapper.selectById(id).getSenderId();
     }
+
+    @Override
+    public List<FeedbackVO> selectMyFeedbacks(Long userId) {
+        return feedbackMapper.selectMyFeedbacks(userId);
+    }
 }

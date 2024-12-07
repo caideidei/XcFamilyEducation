@@ -53,7 +53,7 @@ public class OrderController {
     /**
      * @author 小菜
      * @date  2024/11/23
-     * @description 家长查询自己的订单信息
+     * @description 教师查询自己的订单信息
      **/
     @GetMapping("/teacherSelectOrders")
     @PreAuthorize("hasRole('TEACHER')")

@@ -21,4 +21,6 @@ public interface FeedbackService {
     int deleteFeedback(Long id);
 
     Long selectSenderIdById(Long id);
+
+    List<FeedbackVO> selectMyFeedbacks(Long userId);
 }
