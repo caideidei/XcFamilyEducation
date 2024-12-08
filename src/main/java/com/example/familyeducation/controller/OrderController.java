@@ -87,7 +87,7 @@ public class OrderController {
     /**
      * @author 小菜
      * @date  2024/12/5
-     * @description 查询所有通过审核的订单
+     * @description 查询待接单的订单
      **/
     @GetMapping("/selectAllPassedOrders")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
@@ -99,7 +99,7 @@ public class OrderController {
         //2.Redis中为空，从数据库中查询
         if(keys==null||keys.isEmpty()){
             //2.1查询数据库的所有数据
-            orderList = orderService.selectAllOrders(new QueryWrapper<Order>().notIn("status",Arrays.asList(ORDER_REVIEW_FAILED,ORDER_PENDING_REVIEW)));
+            orderList = orderService.selectAllOrders(new QueryWrapper<Order>().eq("status",ORDER_REVIEW_PASSED));
             //2.2数据库中有数据，将数据存到Redis
             if(orderList!=null&&!orderList.isEmpty()){
                 for (Order order : orderList) {
@@ -114,7 +114,7 @@ public class OrderController {
         }
         //3.Redis中存在数据，判断数据是否完整
         //3.1查询数据库中通过审核的总数
-        orderList = orderService.selectAllOrders(new QueryWrapper<Order>().notIn("status",Arrays.asList(ORDER_REVIEW_FAILED,ORDER_PENDING_REVIEW)));
+        orderList = orderService.selectAllOrders(new QueryWrapper<Order>().eq("status",ORDER_REVIEW_PASSED));
         //3.2Redis中的数据不完整
         if(orderList.size()!=keys.size()){
             //3.3将数据库中的完整数据更新到Redis中
@@ -179,8 +179,8 @@ public class OrderController {
             order.setCreatedAt(LocalDateTime.now());
             //3.插入数据到数据库
             insertOrderNumber = orderService.insertOrder(order);
-            String key = ORDER_MESSAGE_KEY + order.getId();
-            redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
+//            String key = ORDER_MESSAGE_KEY + order.getId();
+//            redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
         }
         //4.判断插入情况
         if(insertOrderNumber==0){
@@ -201,8 +201,8 @@ public class OrderController {
         //1.直接传给数据库
         int update = 0;
         update = orderService.updateOrder(order);
-        String key = ORDER_MESSAGE_KEY + order.getId();
-        redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
+//        String key = ORDER_MESSAGE_KEY + order.getId();
+//        redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
         if(update==0){
             return ResponseResult.error("修改状态失败");
         }else {
@@ -231,8 +231,8 @@ public class OrderController {
             order.setStatus(ORDER_PENDING_REVIEW);
             //3.2将新订单对象插入数据库
             updateOrderNumber = orderService.updateOrder(order);
-            String key = ORDER_MESSAGE_KEY + order.getId();
-            redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
+//            String key = ORDER_MESSAGE_KEY + order.getId();
+//            redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
         }
         //4.根据插入情况向前端返回数据
         if(updateOrderNumber==0){
@@ -263,8 +263,8 @@ public class OrderController {
         order.setTeacherId(teacherId);
         //3.存入数据库
         int updateOrder = orderService.updateOrder(order);
-        String key = ORDER_MESSAGE_KEY + order.getId();
-        redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
+//        String key = ORDER_MESSAGE_KEY + order.getId();
+//        redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
         //4.判断更新情况
         if(updateOrder==0){
             return ResponseResult.error("更新订单失败");
@@ -293,8 +293,8 @@ public class OrderController {
         order.setStatus(ORDER_REVIEW_PASSED);
         //3.更新数据库表
         int updateOrderNumber = orderService.updateOrder(order);
-        String key = ORDER_MESSAGE_KEY + order.getId();
-        redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
+//        String key = ORDER_MESSAGE_KEY + order.getId();
+//        redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
         //4.判断更新情况
         if(updateOrderNumber==0){
             return ResponseResult.error("更新订单信息失败");
@@ -321,8 +321,8 @@ public class OrderController {
         order.setStatus(ORDER_ACCEPTED);
         //3.更新数据库表
         int updateOrderNumber = orderService.updateOrder(order);
-        String key = ORDER_MESSAGE_KEY + order.getId();
-        redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
+//        String key = ORDER_MESSAGE_KEY + order.getId();
+//        redisCache.setCacheObject(key,order,ORDER_MESSAGE_TTL, TimeUnit.MINUTES);
         //4.判断更新情况
         if(updateOrderNumber==0){
             return ResponseResult.error("更新订单信息失败");
