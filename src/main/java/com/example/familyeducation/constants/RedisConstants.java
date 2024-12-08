@@ -12,9 +12,4 @@ public class RedisConstants {
     public static final String ORDER_MESSAGE_KEY = "xc:order:";
     public static final Integer ORDER_MESSAGE_TTL = 120;
 
-    public static final String UNACCEPT_ORDER_MESSAGE_KEY = "xc:unaccepted:order:";
-    public static final Integer UNACCEPT_ORDER_MESSAGE_TTL = 120;
-
-
-
 }
