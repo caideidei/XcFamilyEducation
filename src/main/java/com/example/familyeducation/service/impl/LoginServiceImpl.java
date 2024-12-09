@@ -9,6 +9,7 @@ import com.example.familyeducation.mapper.ParentMapper;
 import com.example.familyeducation.mapper.TeacherMapper;
 import com.example.familyeducation.mapper.UserMapper;
 import com.example.familyeducation.service.LoginService;
+import com.example.familyeducation.service.UserService;
 import com.example.familyeducation.utils.JwtUtil;
 import com.example.familyeducation.utils.RedisCache;
 import com.example.familyeducation.response.ResponseResult;
@@ -57,6 +58,9 @@ public class LoginServiceImpl implements LoginService {
     @Autowired
     private ParentMapper parentMapper;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     public ResponseResult login(User user) {
         //1.构造用户名密码认证信息
@@ -74,6 +78,11 @@ public class LoginServiceImpl implements LoginService {
         String userId = loginUser.getUser().getId().toString();
         String role = loginUser.getUser().getRole();
         String token = JwtUtil.createJWT(userId,role);//将userId进行token生成
+        //4.1如果用户被禁用则无法登录
+        String userStatus = userService.selectUserStatusByUserId(Long.valueOf(userId));
+        if(userStatus.equals("banned")){
+            return ResponseResult.error("您已被禁用，无法登录");
+        }
         //5.封装数据到Redis中
         redisCache.setCacheObject(LOGIN_USER_KEY+userId,loginUser,LOGIN_USER_TTL, TimeUnit.MINUTES);
         //6.最后将token返回前端
