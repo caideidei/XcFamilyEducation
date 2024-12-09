@@ -62,7 +62,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             id = claims.getSubject();
         } catch (Exception e) {
             //TODO使用统一异常类封装
-            ResponseResult<Object> responseResult = new ResponseResult(401, "token异常",null);
+            ResponseResult<Object> responseResult = new ResponseResult(401, "请重新登录",null);
             String s = JSON.toJSONString(responseResult);
             response.getWriter().write(s);
             return;

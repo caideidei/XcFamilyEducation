@@ -13,7 +13,7 @@ import java.io.ByteArrayInputStream;
 @Data
 @AllArgsConstructor
 @Slf4j
-public class AliOssUtil {
+public class AliOSSUtils {
 
     private String endpoint;
     private String accessKeyId;
@@ -66,4 +66,5 @@ public class AliOssUtil {
 
         return stringBuilder.toString();
     }
+
 }

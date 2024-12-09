@@ -12,4 +12,7 @@ public class RedisConstants {
     public static final String ORDER_MESSAGE_KEY = "xc:order:";
     public static final Integer ORDER_MESSAGE_TTL = 120;
 
+    public static final String PHONE_CODE_KEY = "xc:phone-code:";
+    public static final Integer PHONE_CODE_TTL = 2;
+
 }
