@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import org.apache.commons.lang3.StringUtils;
 
 public class ValidationUtil {
+
+    //数据完整返回true，数据不完整返回false
     public static boolean areAllFieldsNonNull(Object obj) {
         if (obj == null) {
             return false; // 对象本身为空，直接返回 false

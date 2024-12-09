@@ -54,7 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 允许 Swagger 相关路径的匿名访问
                 .antMatchers("/swagger-ui/index.html", "/swagger-ui/**", "/swagger-resources/**", "/webjars/**", "/v3/api-docs/**").anonymous()
                 // 对于登录接口允许匿名访问
-                .antMatchers("/user/login", "/user/register","/common/sendMessage").anonymous()
+                .antMatchers("/user/login", "/user/register","/common/sendMessage","/user/loginByPhoneCode").anonymous()
                 // 除上面外的所有请求全部需要鉴权认证
                 .anyRequest().authenticated();
 

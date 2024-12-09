@@ -1,5 +1,6 @@
 package com.example.familyeducation.controller;
 
+import com.example.familyeducation.dto.UserPhoneCodeDTO;
 import com.example.familyeducation.entity.User;
 import com.example.familyeducation.service.LoginService;
 import com.example.familyeducation.response.ResponseResult;
@@ -30,6 +31,12 @@ public class UserController {
     @PostMapping("/login")
     public ResponseResult login(@RequestBody User user){
         return loginService.login(user);
+    }
+
+
+    @PostMapping("/loginByPhoneCode")
+    public ResponseResult loginByPhoneCode(@RequestBody UserPhoneCodeDTO user){
+        return loginService.loginByPhoneNumber(user);
     }
 
     @PostMapping("/logout")

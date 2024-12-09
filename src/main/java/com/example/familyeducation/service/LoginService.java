@@ -1,6 +1,7 @@
 package com.example.familyeducation.service;
 
 
+import com.example.familyeducation.dto.UserPhoneCodeDTO;
 import com.example.familyeducation.entity.User;
 import com.example.familyeducation.response.ResponseResult;
 
@@ -16,4 +17,6 @@ public interface LoginService {
     ResponseResult logout();
 
     ResponseResult register(User user);
+
+    ResponseResult loginByPhoneNumber(UserPhoneCodeDTO userPhoneCodeDTO);
 }

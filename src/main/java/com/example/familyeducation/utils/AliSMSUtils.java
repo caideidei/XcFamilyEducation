@@ -26,13 +26,23 @@ public class AliSMSUtils {
     @Value("${aliyun.oss.accessKeySecret}")
     private String accessKeySecretConfig;
 
+    @Value("${aliyun.sms.signName}")
+    private String signNameConfig;
+
+    @Value("${aliyun.sms.templateCode}")
+    private String templateCodeConfig;
+
     private static String accessKeyId;
     private static String accessKeySecret;
+    private static String signName;
+    private static String templateCode;
 
     @PostConstruct
     public void init() {
         accessKeyId = accessKeyIdConfig;
         accessKeySecret = accessKeySecretConfig;
+        signName = signNameConfig;
+        templateCode = templateCodeConfig;
     }
 
     public static boolean sendMessage(String phone, String code) {
@@ -41,8 +51,8 @@ public class AliSMSUtils {
         IAcsClient client = new DefaultAcsClient(profile);
 
         SendSmsRequest request = new SendSmsRequest();
-        request.setSignName("智学家教");
-        request.setTemplateCode("SMS_475780873");
+        request.setSignName(signName);
+        request.setTemplateCode(templateCode);
         request.setPhoneNumbers(phone);
         request.setTemplateParam("{\"code\":\"" + code + "\"}");
 
