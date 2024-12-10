@@ -48,7 +48,7 @@ public class CommonController {
         return ResponseResult.error("文件上传失败");
     }
 
-    @PostMapping("/sendMessage")
+    @GetMapping("/sendMessage")
     public ResponseResult sendMessage(@RequestParam String phone){
         //1.校验手机号是否符合手机号
         if(RegexUtils.isPhoneInvalid(phone)){

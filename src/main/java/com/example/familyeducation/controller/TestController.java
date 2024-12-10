@@ -29,6 +29,11 @@ public class TestController {
     @Autowired
     private AliOSSUtils aliOSSUtils;
 
+    @GetMapping("/common/sendMessage")
+    public ResponseResult sendMessage(){
+        return ResponseResult.success("成功",null);
+    }
+
     @PostMapping("/oss/upload")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
     public ResponseResult upload(MultipartFile file){
