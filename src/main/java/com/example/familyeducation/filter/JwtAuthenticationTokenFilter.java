@@ -64,8 +64,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             if(StringUtils.hasText(refreshToken)){
                 try {
                     //存在refreshToken去调用方法检验refreshToken并生成新token
-//                    String newToken = commonService.refreshToken(refreshToken);
-//                    response.setHeader("newToken",newToken);
                     id = JwtUtil.parseJWT(refreshToken).getSubject();
                 } catch (Exception ex) {
                     ResponseResult<Object> responseResult = new ResponseResult(401, "请重新登录",null);

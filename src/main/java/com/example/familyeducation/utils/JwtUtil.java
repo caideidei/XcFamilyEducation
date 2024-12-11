@@ -17,7 +17,7 @@ import java.util.UUID;
 public class JwtUtil {
 
     //有效期为
-    public static final Long JWT_TTL = 60 *1000L;// 一小时
+    public static final Long JWT_TTL = 60 *60 *1000L;// 一小时
     public static final Long REFRESH_JWT_TTL = 7*60*60*1000L; //七天
     //设置秘钥明文
     public static final String JWT_KEY = "xcbx";//可以自己设置

@@ -53,6 +53,6 @@ public class Order implements Serializable {
     private String subject;
 
     @Schema(name = "created_at", description = "发布时间")
-    @JsonIgnore
+//    @JsonIgnore
     private LocalDateTime createdAt;
 }

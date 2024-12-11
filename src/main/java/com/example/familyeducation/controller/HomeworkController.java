@@ -135,4 +135,15 @@ public class HomeworkController {
         }
     }
 
+    @PutMapping("/updateHomework")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseResult updateHomework(@RequestBody Homework homework){
+        int updateHomeworkNumber = homeworkService.updateHomework(homework);
+        if(updateHomeworkNumber==0){
+            return ResponseResult.error("更新作业失败");
+        }else{
+            return ResponseResult.success("更新作业成功",null);
+        }
+    }
+
 }
