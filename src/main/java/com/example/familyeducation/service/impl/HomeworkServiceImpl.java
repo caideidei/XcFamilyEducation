@@ -37,4 +37,10 @@ public class HomeworkServiceImpl implements HomeworkService {
         int update = homeworkMapper.updateById(homework);
         return update;
     }
+
+    @Override
+    public int deleteHomeworkById(Long id) {
+        int delete = homeworkMapper.deleteById(id);
+        return delete;
+    }
 }

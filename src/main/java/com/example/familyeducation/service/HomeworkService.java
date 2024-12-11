@@ -16,4 +16,6 @@ public interface HomeworkService {
     List<Homework> selectHomeworks(QueryWrapper<Homework> homeworkQueryWrapper);
 
     int updateHomework(Homework homework);
+
+    int deleteHomeworkById(Long id);
 }

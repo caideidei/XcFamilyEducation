@@ -146,4 +146,15 @@ public class HomeworkController {
         }
     }
 
+    @DeleteMapping("/deleteHomework")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseResult deleteHomework(@RequestParam Long id){
+        int deleteHomework = homeworkService.deleteHomeworkById(id);
+        if(deleteHomework==0){
+            return ResponseResult.error("删除作业失败");
+        }else{
+            return ResponseResult.success("删除作业成功",null);
+        }
+    }
+
 }
