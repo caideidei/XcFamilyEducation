@@ -73,11 +73,13 @@ public class LoginServiceImpl implements LoginService {
         if(Objects.isNull(authenticate)){
             throw new RuntimeException("登录失败");
         }
-        //4.认证通过则生成token
+        //4.认证通过则生成双token
         LoginUser loginUser= (LoginUser) authenticate.getPrincipal();
         String userId = loginUser.getUser().getId().toString();
-        String role = loginUser.getUser().getRole();
-        String token = JwtUtil.createJWT(userId,role);//将userId进行token生成
+//        String role = loginUser.getUser().getRole();
+
+        String token = JwtUtil.createJWT(userId);//将userId进行token生成
+        String refreshToken = JwtUtil.createRefreshToken(userId);//生成长token
         //4.1如果用户被禁用则无法登录
         String userStatus = userService.selectUserStatusByUserId(Long.valueOf(userId));
         if(userStatus.equals("banned")){
@@ -85,9 +87,11 @@ public class LoginServiceImpl implements LoginService {
         }
         //5.封装数据到Redis中
         redisCache.setCacheObject(LOGIN_USER_KEY+userId,loginUser,LOGIN_USER_TTL, TimeUnit.MINUTES);
+        redisCache.setCacheObject(REFRESH_CODE_KEY+userId,refreshToken,REFRESH_CODE_TTL,TimeUnit.MINUTES);
         //6.最后将token返回前端
         HashMap<String, String> map = new HashMap<>();
         map.put("token",token);
+        map.put("refreshToken",refreshToken);
         return new ResponseResult(200,"登录成功",map);
     }
 
@@ -113,7 +117,7 @@ public class LoginServiceImpl implements LoginService {
         Long userId = user.getId();
         String role = user.getRole();
         //3.1生成token并保存到Redis中
-        String token = JwtUtil.createJWT(String.valueOf(userId), role);
+        String token = JwtUtil.createJWT(String.valueOf(userId));
         //4.1如果用户被禁用则无法登录
         String userStatus = userService.selectUserStatusByUserId(Long.valueOf(userId));
         if(userStatus.equals("banned")){

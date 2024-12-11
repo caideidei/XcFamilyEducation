@@ -40,6 +40,9 @@ public class Order implements Serializable {
     @Schema(name = "classNumber", description = "预计课时数")
     private Long classNumber;
 
+    @Schema(name = "nowClassNumber", description = "目前课时数")
+    private Long nowClassNumber;
+
     @Schema(name = "address", description = "家教地址")
     private String address;
 

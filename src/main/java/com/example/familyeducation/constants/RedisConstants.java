@@ -15,4 +15,7 @@ public class RedisConstants {
     public static final String PHONE_CODE_KEY = "xc:phone-code:";
     public static final Integer PHONE_CODE_TTL = 2;
 
+    public static final String REFRESH_CODE_KEY = "xc:login-refresh-token:";
+    public static final Integer REFRESH_CODE_TTL = 10080;
+
 }

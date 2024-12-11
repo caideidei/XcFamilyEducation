@@ -17,7 +17,8 @@ import java.util.UUID;
 public class JwtUtil {
 
     //有效期为
-    public static final Long JWT_TTL = 60 * 60 *1000L;// 60 * 60 *1000  一个小时
+    public static final Long JWT_TTL = 60 *1000L;// 一小时
+    public static final Long REFRESH_JWT_TTL = 7*60*60*1000L; //七天
     //设置秘钥明文
     public static final String JWT_KEY = "xcbx";//可以自己设置
 
@@ -31,10 +32,22 @@ public class JwtUtil {
      * @param subject token中要存放的数据（json格式）
      * @return
      */
-    public static String createJWT(String subject,String role) {
-        JwtBuilder builder = getJwtBuilder(subject, role,null, getUUID());// 设置过期时间
+    public static String createJWT(String subject) {
+        JwtBuilder builder = getJwtBuilder(subject,null, getUUID());// 设置过期时间
         return builder.compact();
     }
+
+    /**
+     * @author 小菜
+     * @date  2024/12/10
+     * @description 生成refreshToken
+     **/
+    public static String createRefreshToken(String subject){
+        JwtBuilder builder = getJwtBuilder(subject, REFRESH_JWT_TTL, getUUID());
+        return builder.compact();
+    }
+
+
 
     /**
      * 生成jtw
@@ -42,12 +55,12 @@ public class JwtUtil {
      * @param ttlMillis token超时时间
      * @return
      */
-    public static String createJWT(String subject,String role, Long ttlMillis) {
-        JwtBuilder builder = getJwtBuilder(subject, role,ttlMillis, getUUID());// 设置过期时间
+    public static String createJWT(String subject, Long ttlMillis) {
+        JwtBuilder builder = getJwtBuilder(subject,ttlMillis, getUUID());// 设置过期时间
         return builder.compact();
     }
 
-    private static JwtBuilder getJwtBuilder(String subject,String role, Long ttlMillis, String uuid) {
+    private static JwtBuilder getJwtBuilder(String subject, Long ttlMillis, String uuid) {
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
         SecretKey secretKey = generalKey();
         long nowMillis = System.currentTimeMillis();
@@ -59,7 +72,7 @@ public class JwtUtil {
         Date expDate = new Date(expMillis);
         return Jwts.builder()
                 .setId(uuid)              //唯一的ID
-                .claim("role",role)
+//                .claim("role",role)
                 .setSubject(subject)   // 主题  可以是JSON数据
                 .setIssuer("xc")     // 签发者
                 .setIssuedAt(now)      // 签发时间

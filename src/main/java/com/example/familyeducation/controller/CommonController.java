@@ -2,6 +2,7 @@ package com.example.familyeducation.controller;
 
 import cn.hutool.core.util.RandomUtil;
 import com.example.familyeducation.response.ResponseResult;
+import com.example.familyeducation.service.CommonService;
 import com.example.familyeducation.utils.AliOSSUtils;
 import com.example.familyeducation.utils.AliSMSUtils;
 import com.example.familyeducation.utils.RedisCache;
@@ -32,6 +33,9 @@ public class CommonController {
 
     @Autowired
     private RedisCache redisCache;
+
+    @Autowired
+    private CommonService commonService;
 
     @PostMapping("/oss/upload")
     public ResponseResult upload(MultipartFile file){
@@ -66,5 +70,16 @@ public class CommonController {
         }else{
             return ResponseResult.error("发送验证码失败");
         }
+    }
+
+    @PostMapping("/refreshToken")
+    public ResponseResult refreshToken(@RequestHeader String refreshToken){
+        String token = commonService.refreshToken(refreshToken);
+        if(token==null){
+            return ResponseResult.error("刷新token失败");
+        }else{
+            return ResponseResult.success("刷新token成功",token);
+        }
+
     }
 }

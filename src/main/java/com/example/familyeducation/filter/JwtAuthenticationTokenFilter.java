@@ -6,6 +6,7 @@ import com.example.familyeducation.exception.BusinessException;
 import com.example.familyeducation.exception.GlobalExceptionHandler;
 import com.example.familyeducation.handler.AuthenticationEntryPointImpl;
 import com.example.familyeducation.response.ResponseResult;
+import com.example.familyeducation.service.CommonService;
 import com.example.familyeducation.utils.JwtUtil;
 import com.example.familyeducation.utils.RedisCache;
 import io.jsonwebtoken.Claims;
@@ -35,14 +36,11 @@ import static com.example.familyeducation.constants.RedisConstants.LOGIN_USER_KE
 @Component
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private GlobalExceptionHandler globalExceptionHandler;
-
     @Resource
     private RedisCache redisCache;
 
     @Autowired
-    private AuthenticationEntryPointImpl authenticationEntryPoint;
+    private CommonService commonService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -61,12 +59,29 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             Claims claims = JwtUtil.parseJWT(token);
             id = claims.getSubject();
         } catch (Exception e) {
-            //TODO使用统一异常类封装
-            ResponseResult<Object> responseResult = new ResponseResult(401, "请重新登录",null);
-            String s = JSON.toJSONString(responseResult);
-            response.getWriter().write(s);
-            return;
+            //3.2token过期，检查refreshToken是否过期
+            String refreshToken = request.getHeader("refreshToken");
+            if(StringUtils.hasText(refreshToken)){
+                try {
+                    //存在refreshToken去调用方法检验refreshToken并生成新token
+//                    String newToken = commonService.refreshToken(refreshToken);
+//                    response.setHeader("newToken",newToken);
+                    id = JwtUtil.parseJWT(refreshToken).getSubject();
+                } catch (Exception ex) {
+                    ResponseResult<Object> responseResult = new ResponseResult(401, "请重新登录",null);
+                    String s = JSON.toJSONString(responseResult);
+                    response.getWriter().write(s);
+                    return;
+                }
+            }else{
+                //不存在refreshToken直接报错
+                ResponseResult<Object> responseResult = new ResponseResult(401, "请重新登录",null);
+                String s = JSON.toJSONString(responseResult);
+                response.getWriter().write(s);
+                return;
+            }
         }
+
         //4.根据id从redis中获取用户信息
         String key = LOGIN_USER_KEY + id;
         LoginUser loginUser = redisCache.getCacheObject(key);
@@ -79,7 +94,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         //5.将用户信息存入SecurityContextHolder
         //TODO获取当前用户权限信息封装到Authentication 直接从LoginUser中获取即可
         //5.1封装用户信息到Authentication
-
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
         //5.2将信息存入SecurityContextHolder

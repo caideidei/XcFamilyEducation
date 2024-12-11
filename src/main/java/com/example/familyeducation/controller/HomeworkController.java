@@ -73,10 +73,15 @@ public class HomeworkController {
         //3.1补充homework对象
         homework.setStatus(HOMEWORK_INCOMPLETED);
         homework.setCreatedAt(LocalDateTime.now());
+        //3.2布置一次作业，课时数加一
+        //根据作业中的订单id找到对应订单并将课时数加一后进行更新
+        Order order = orderService.selectOrderById(homework.getOrderId());
+        order.setNowClassNumber(order.getNowClassNumber()+1);
+        int updateOrderNumber = orderService.updateOrder(order);
         //4.将数据插入数据库表中
         int insertHomeworkNumber = homeworkService.insert(homework);
         //5.根据插入数据情况返回前端信息
-        if(insertHomeworkNumber==0){
+        if(insertHomeworkNumber==0||updateOrderNumber==0){
             return ResponseResult.error("发布作业失败");
         }else{
             return ResponseResult.success("发布作业成功",null);

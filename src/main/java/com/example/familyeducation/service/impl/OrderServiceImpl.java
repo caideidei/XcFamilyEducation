@@ -74,4 +74,9 @@ public class OrderServiceImpl implements OrderService {
         Long teacherId = orderMapper.selectOne(orderQueryWrapper).getTeacherId();
         return teacherId;
     }
+
+    @Override
+    public Order selectOrderById(Long orderId) {
+        return orderMapper.selectOne(new QueryWrapper<Order>().eq("id",orderId));
+    }
 }
