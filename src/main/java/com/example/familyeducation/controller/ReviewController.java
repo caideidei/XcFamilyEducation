@@ -97,5 +97,28 @@ public class ReviewController {
         }
     }
 
+    @GetMapping("/selectMyReviews")
+    @PreAuthorize("hasAnyRole('TEACHER','PARENT')")
+    public ResponseResult selectMyReviews(){
+        List<Review> reviewList;
+        //1.从SecurityContextHolder中获取当前用户的相关信息
+        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String role = loginUser.getUser().getRole();
+        //2.根据用户角色查询相关信息并返回
+        if(role.equals("teacher")){
+            Long teacherId = getUserIdUtil.getTeacherId();
+            reviewList = reviewService.selectReviewsByTeacherId(teacherId);
+        }else{
+            Long parentId = getUserIdUtil.getParentId();
+            reviewList = reviewService.selectReviewsByParentId(parentId);
+        }
+        //3.返回信息给前端
+        if(reviewList==null){
+            return ResponseResult.error("查询数据为空");
+        }else{
+            return ResponseResult.success("查询数据成功",reviewList);
+        }
+
+    }
 
 }
