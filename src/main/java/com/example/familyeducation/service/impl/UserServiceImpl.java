@@ -21,7 +21,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
     @Override
-    public UserInfoVO selectByUserId(String userId) {
+    public UserInfoVO selectUserInfoByUserId(String userId) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id",userId);
         User user = userMapper.selectOne(queryWrapper);
@@ -73,6 +73,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public int deleteUserById(Long userId) {
         return userMapper.deleteById(userId);
+    }
+
+    @Override
+    public User selectUserByUserId(String userId) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id",userId);
+        return userMapper.selectOne(queryWrapper);
     }
 
 

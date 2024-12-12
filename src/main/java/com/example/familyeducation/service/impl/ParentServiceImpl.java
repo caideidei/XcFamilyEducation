@@ -57,4 +57,11 @@ public class ParentServiceImpl implements ParentService {
         Long id = parentMapper.selectOne(parentQueryWrapper).getId();
         return id;
     }
+
+    @Override
+    public Parent selectParentByUserId(Long id) {
+        QueryWrapper<Parent> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id",id);
+        return parentMapper.selectOne(queryWrapper);
+    }
 }

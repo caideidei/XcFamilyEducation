@@ -89,4 +89,10 @@ public class AdminServiceImpl implements AdminService {
         return adminMapper.updateById(admin);
     }
 
+    @Override
+    public Admin selectAdminByUserId(Long id) {
+        QueryWrapper<Admin> queryWrapper = new QueryWrapper<Admin>().eq("user_id", id);
+        return adminMapper.selectOne(queryWrapper);
+    }
+
 }

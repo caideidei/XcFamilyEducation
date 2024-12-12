@@ -11,7 +11,7 @@ import java.util.List;
  * @Create:2024/11/23 9:29
  **/
 public interface UserService {
-    UserInfoVO selectByUserId(String userId);
+    UserInfoVO selectUserInfoByUserId(String userId);
 
     List<User> selectByPhone(String phoneNumber);
 
@@ -26,4 +26,6 @@ public interface UserService {
     String selectUserStatusByUserId(Long userId);
 
     int  deleteUserById(Long userId);
+
+    User selectUserByUserId(String userId);
 }

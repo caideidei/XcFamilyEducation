@@ -1,10 +1,7 @@
 package com.example.familyeducation.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.familyeducation.dto.UserDTO;
 import com.example.familyeducation.entity.Admin;
-import com.example.familyeducation.entity.User;
-import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.vo.AdminVO;
 
 import java.util.List;
@@ -22,4 +19,6 @@ public interface AdminService {
     Long selectAdminId(QueryWrapper<Admin> adminQueryWrapper);
 
     int updateAdmin(Admin admin);
+
+    Admin selectAdminByUserId(Long id);
 }

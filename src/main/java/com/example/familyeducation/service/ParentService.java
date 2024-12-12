@@ -19,4 +19,6 @@ public interface ParentService {
     int updateParent(Parent parent);
 
     Long selectParentId(QueryWrapper<Parent> parentQueryWrapper);
+
+    Parent selectParentByUserId(Long id);
 }
