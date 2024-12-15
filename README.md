@@ -164,13 +164,6 @@ java -jar target/your-project-name-0.0.1-SNAPSHOT.jar
 
 本项目采用MIT许可，具体内容请参见`LICENSE`文件。
 
-## 联系方式
-
-如果您对该项目有任何问题或建议，请通过以下方式联系我：
-
-- 邮箱：your-email@example.com
-- GitHub：[your-username](https://github.com/your-username)
-```
 
 ### 更新内容：
 
