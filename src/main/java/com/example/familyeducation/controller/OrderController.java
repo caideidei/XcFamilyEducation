@@ -193,7 +193,7 @@ public class OrderController {
     /**
      * @author 小菜
      * @date  2024/11/23
-     * @description 管理员审核订单状态
+     * @description  管理员审核订单状态
      **/
     @PutMapping("/passOrFailOrder")
     @PreAuthorize("hasRole('ADMIN')")

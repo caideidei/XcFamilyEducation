@@ -77,7 +77,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration config = new CorsConfiguration();
         // 允许前端访问的地址
         List<String> allowedOriginsUrl = new ArrayList<>();
-        allowedOriginsUrl.add("http://localhost:8888"); // 添加前端地址
+        allowedOriginsUrl.add("http://localhost:8887"); // 添加前端地址
         config.setAllowedOrigins(allowedOriginsUrl);
         config.setAllowCredentials(true);
         config.addAllowedHeader("*");

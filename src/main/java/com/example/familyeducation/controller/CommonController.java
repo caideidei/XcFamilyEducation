@@ -1,6 +1,7 @@
 package com.example.familyeducation.controller;
 
 import cn.hutool.core.util.RandomUtil;
+import com.aliyun.oss.model.ObjectMetadata;
 import com.example.familyeducation.response.ResponseResult;
 import com.example.familyeducation.service.CommonService;
 import com.example.familyeducation.utils.AliOSSUtils;
@@ -44,7 +45,12 @@ public class CommonController {
             String originalFilename = file.getOriginalFilename();
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             String objectName = UUID.randomUUID().toString() + extension;
-            String filePath = aliOSSUtils.upload(file.getBytes(), objectName);
+
+            // 设置文件元数据
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(getcontentType(extension));
+
+            String filePath = aliOSSUtils.upload(file.getBytes(), objectName,metadata);
             return ResponseResult.success("文件上传成功，路径如下：",filePath);
         } catch (IOException e) {
             log.error("文件上传失败：{}", e);
@@ -80,6 +86,41 @@ public class CommonController {
         }else{
             return ResponseResult.success("刷新token成功",token);
         }
-
     }
+
+    public static String getcontentType(String FilenameExtension) {
+        if (FilenameExtension.equalsIgnoreCase(".bmp")) {
+            return "image/bmp";
+        }
+        if (FilenameExtension.equalsIgnoreCase(".gif")) {
+            return "image/gif";
+        }
+        if (FilenameExtension.equalsIgnoreCase(".jpeg") ||
+                FilenameExtension.equalsIgnoreCase(".jpg") ||
+                FilenameExtension.equalsIgnoreCase(".png")) {
+            return "image/jpg";
+        }
+        if (FilenameExtension.equalsIgnoreCase(".html")) {
+            return "text/html";
+        }
+        if (FilenameExtension.equalsIgnoreCase(".txt")) {
+            return "text/plain";
+        }
+        if (FilenameExtension.equalsIgnoreCase(".vsd")) {
+            return "application/vnd.visio";
+        }
+        if (FilenameExtension.equalsIgnoreCase(".pptx") ||
+                FilenameExtension.equalsIgnoreCase(".ppt")) {
+            return "application/vnd.ms-powerpoint";
+        }
+        if (FilenameExtension.equalsIgnoreCase(".docx") ||
+                FilenameExtension.equalsIgnoreCase(".doc")) {
+            return "application/msword";
+        }
+        if (FilenameExtension.equalsIgnoreCase(".xml")) {
+            return "text/xml";
+        }
+        return "image/jpg";
+    }
+
 }
