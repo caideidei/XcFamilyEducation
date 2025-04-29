@@ -5,6 +5,8 @@ import com.example.familyeducation.lottery.entity.LotteryResult;
 import com.example.familyeducation.lottery.entity.Prize;
 import com.example.familyeducation.lottery.strategy.chain.LotteryHandler;
 import com.example.familyeducation.lottery.strategy.rule.LotteryRuleService;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -12,6 +14,7 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class LotteryService {
@@ -30,6 +33,9 @@ public class LotteryService {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     public LotteryResult handleLottery(LotteryRequest request) {
         // 责任链判断
@@ -53,6 +59,7 @@ public class LotteryService {
         return new LotteryResult(true, "恭喜中奖！");
     }
 
+    //方案一：lua脚本扣减Redis库存再发送异步消息mq扣减MySQL库存
     private void updateStockAndRecord(Prize prize) {
         // 先扣减 Redis 中的库存
         if (!decrStockByLua(prize.getId().toString())) {
@@ -78,6 +85,37 @@ public class LotteryService {
 
         Long result = redisTemplate.execute(redisScript, Collections.singletonList(prizeKey));
         return result != null && result == 1L;
+    }
+
+    //方案二：redission加锁/setnx:redission相当于是setnx的升级版，提供了看门狗机制自动续期
+    public void updateStockAndRecord2(Prize productId){
+        RLock lock = redissonClient.getLock("lock:product:" + productId);
+        boolean locked = false;
+        try {
+            // 尝试获取锁：最多等 5 秒，锁持有 30 秒后自动释放
+            locked = lock.tryLock(5, 30, TimeUnit.SECONDS);
+            if (!locked) {
+                throw new RuntimeException("当前系统繁忙，请稍后重试");
+            }
+
+            // —— 以下为你的扣库存逻辑 ——
+            // 1）先在 Redis 扣减
+            // Long stock = redis.opsForValue().decrement("stock:" + productId, amount);
+            // if (stock < 0) { throw new RuntimeException("库存不足"); }
+            //
+            // 2）再同步（或异步）更新到 MySQL
+            // productMapper.updateStock(productId, amount);
+            // ——————————————
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("获取锁被中断", e);
+        } finally {
+            // 释放锁
+            if (locked && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 
 }
