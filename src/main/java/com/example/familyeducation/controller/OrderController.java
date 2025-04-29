@@ -1,6 +1,7 @@
 package com.example.familyeducation.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.familyeducation.config.RabbitMQConfig;
 import com.example.familyeducation.dto.OrderDTO;
 import com.example.familyeducation.entity.*;
 import com.example.familyeducation.mapper.UserMapper;
@@ -13,6 +14,7 @@ import com.example.familyeducation.utils.GetUserIdUtil;
 import com.example.familyeducation.utils.RedisCache;
 import com.example.familyeducation.utils.ValidationUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -47,6 +49,9 @@ public class OrderController {
 
     @Autowired
     private RedisCache redisCache;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     //TODO修改数据库的数据时要修改Redis中的对应数据，同时查询所有订单时，如果其他有订单改变，就不会查询完整（Redis数据更新问题）
 
@@ -269,6 +274,12 @@ public class OrderController {
         if(updateOrder==0){
             return ResponseResult.error("更新订单失败");
         }else{
+            //发送短信提醒家长
+            Long parentId = order.getParentId();//获取到家长id后可以去查询家长电话来发送短信，这里暂时用id模拟
+            HashMap<String,Long> map = new HashMap();
+            map.put("teacherId",teacherId);
+            map.put("parentId",parentId);
+            rabbitTemplate.convertAndSend(RabbitMQConfig.DEFAULT_EXCHANGE,RabbitMQConfig.DEFAULT_ROUTE,map);
             return ResponseResult.success("更新订单成功",null);
         }
     }
